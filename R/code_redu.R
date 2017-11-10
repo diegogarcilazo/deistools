@@ -9,6 +9,5 @@ code_redu <- function(year, grupedad, codmuer)
     (year >= 2010 & year <= 2011) & grupedad%in%c('M3') ~ paste0(codmuer,10112L),
     T ~ NA_character_)
 
-
 }
 

@@ -42,6 +42,8 @@ localidad <- as_tibble(
 
 
 
+devtools::install_github('diegogarcilazo/biotools')
+
 library(biotools)
 
 devtools::document()
@@ -108,10 +110,8 @@ def_inf_i08 <- tbl(con, dbplyr::in_schema('mi','def_inf_i08'))
 
 reduneo <- tbl(con, dbplyr::in_schema('codigos','reduneo')) %>% collect
 
-tbl_critred
-
 def_inf_i08 %>% collect %>%
-  mutate(critred = code_redu(ano, grupedad, codmuer)) %>%
+  mutate(code_redu = code_redu(ano, grupedad, codmuer)) %>%
   left_join(tbl_critred) %>%
   count(ano,
         edad = case_when(str_detect(grupedad, 'M1|M2') ~ 'NEONATAL',
