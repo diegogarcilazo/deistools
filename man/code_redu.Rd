@@ -2,10 +2,15 @@
 % Please edit documentation in R/code_redu.R
 \name{code_redu}
 \alias{code_redu}
-\title{function for recode critred}
+\title{This is a helper function. This function builds the code_redu
+by joining the variables year and group age to later join with the tbl_critred.}
 \usage{
 code_redu(year, grupedad, codmuer)
 }
+\value{
+code_redu for join with tbl_critred.
+}
 \description{
-function for recode critred
+This is a helper function. This function builds the code_redu
+by joining the variables year and group age to later join with the tbl_critred.
 }

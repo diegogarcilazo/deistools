@@ -95,8 +95,16 @@ names(lookup_discharge) <- c('asociado', 'causextl', 'causextt', 'clasienf', 'co
 # 2012 a 2015 usar tabla critred15b.tsv.
 # Chequeado con anuarios de nación el 02/11/2017
 
+
+#Leer las tablas que se encuentran en el paquete
 critred1011 <- read_delim('data/tbl_critred.tsv', delim = '\t') %>% rename(critred = critred1011)
 critred1215 <- read_delim('data/critred15b.tsv', delim = '\t') %>% rename(critred = critred15)
+
+
+#Unir las tablas y asignar el code_redu que combina las variables. El code_redu utiliza los 4 primeros
+#digitos para definir el intervalo de años, ejemplo: 1215 significa tabla para el período 2012 - 2015.
+#el 5 dígito es 1 para las neonatales y 2 para las posneonatales.
+#Esta table se debe usar junto con la función code_redu.
 
 tbl_critred <- bind_rows(
   critred1215 %>%

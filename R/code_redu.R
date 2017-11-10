@@ -1,4 +1,11 @@
-#' function for recode critred
+#' This is a helper function. This function builds the code_redu
+#' by joining the variables year and group age to later join with the tbl_critred.
+#' @param year
+#' @param grupedad
+#' @param codmuer
+#' @return code_redu for join with tbl_critred.
+
+
 code_redu <- function(year, grupedad, codmuer)
 {
 
