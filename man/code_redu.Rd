@@ -7,6 +7,13 @@ by joining the variables year and group age to later join with the tbl_critred.}
 \usage{
 code_redu(year, grupedad, codmuer)
 }
+\arguments{
+\item{year:}{Year}
+
+\item{grupedad:}{Group age.}
+
+\item{codmuer:}{death code.}
+}
 \value{
 code_redu for join with tbl_critred.
 }

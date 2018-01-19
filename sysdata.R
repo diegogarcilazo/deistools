@@ -4,10 +4,14 @@ library(tidyverse)
 # http://www.paho.org/hq/index.php?option=com_docman&task=doc_download&gid=23700&Itemid=270&lang=en
 
 update_cie10 <- function() {
-  tbl <- readxl::read_excel('data/Volumen1CatalogoCIE-10.xls', sheet = 'CatalogoVolumen1', range = 'B5:Y14423') %>%
-    dplyr::select(code = Clave, entity = Nombre, chapter = Capítulo, useless = `Lista causas poco útiles`,
-                  suspected_maternal_death = `Lista causa sospechosas de encubrir muerte materna`, fetal = Fetal,
-                  sex_limited = `Limitada a un sexo`, age_lower = `Límite Inferior de edad`, age_upper = `Límite Superior de edad`) %>%
+  tbl <- readxl::read_excel('data/Volumen1CatalogoCIE-10.xls',
+                            sheet = 'CatalogoVolumen1', range = 'B5:Y14423') %>%
+    dplyr::select(code = Clave, entity = Nombre, chapter = Capítulo,
+                  useless = `Lista causas poco útiles`,
+                  suspected_maternal_death = `Lista causa sospechosas de encubrir muerte materna`,
+                  fetal = Fetal,
+                  sex_limited = `Limitada a un sexo`,
+                  age_lower = `Límite Inferior de edad`, age_upper = `Límite Superior de edad`) %>%
     dplyr::mutate_if(is.character,
                      function(x) toupper(myutilities::acc_rm(x))
     )
@@ -125,5 +129,11 @@ tbl_critred <- bind_rows(
   transmute(code_redu = paste0(codmuer, code_redu), critred)
 
 
-devtools::use_data(list_tbls, tbl_critred, tbl_cie10,
-                   lookup_discharge, internal = T, overwrite = T)
+devtools::use_data(list_tbls, tbl_critred, tbl_cie10, tbl,
+                   lookup_discharge, lkuptbls_deis2016, lkuptbls_old,
+                   internal = T, overwrite = T)
+
+
+
+
+

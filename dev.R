@@ -118,3 +118,70 @@ def_inf_i08 %>% collect %>%
                          str_detect(grupedad, 'M3') ~ 'POSNEONATAL',
                          T ~ NA_character_),
         critred) %>%  print(n = 200)
+
+
+library(tidyverse)
+
+lkuptbls_deis2016 <- map(
+  c("Depart","País","ClasiEnf","Variables del IED"),
+  readxl::read_excel,
+  path = 'data/USUDEF16.xls') %>%
+  setNames(c("Depart","País","ClasiEnf",'IED' ))
+
+lkuptbls_deis2016$IED %>% print(n = 300)
+
+lkuptbls_deis2016$JURI <- lkuptbls_deis2016$IED[5:28, 5:6]
+lkuptbls_deis2016$ATENMED <- lkuptbls_deis2016$IED[34:36, 5:6]
+lkuptbls_deis2016$MEDSUS <- lkuptbls_deis2016$IED[40:42, 5:6]
+lkuptbls_deis2016$MAT <- lkuptbls_deis2016$IED[48:49, 5:6]
+lkuptbls_deis2016$UNIEDAD <- lkuptbls_deis2016$IED[59:63, 5:6]
+lkuptbls_deis2016$SEXO <- lkuptbls_deis2016$IED[67:70, 5:6]
+lkuptbls_deis2016$OCLOC <- lkuptbls_deis2016$IED[74:78, 5:6]
+lkuptbls_deis2016$ASOCIAD <- lkuptbls_deis2016$IED[145:149, 5:6]
+lkuptbls_deis2016$INSTRUC <- lkuptbls_deis2016$IED[153:166, 5:6]
+lkuptbls_deis2016$SITLABOR <- lkuptbls_deis2016$IED[170:173, 5:6]
+lkuptbls_deis2016$MSITCONY <- lkuptbls_deis2016$IED[197:199, 5:6]
+
+lkuptbls_deis2016$VARS <- lkuptbls_deis2016$IED %>%
+  select(CAMPO, VARIABLE, TIPO) %>%
+  drop_na()
+
+
+lkuptbls_old <- list_tbls[c('loc_bio','muervio','estabio','embmujer','deptos')]
+devtools::use_data(lkuptbls_deis2016,lkuptbls_old,lookup_discharge,tbl_cie10,
+                   tbl_critred,list_tbls, internal = T, overwrite = T)
+
+
+lkuptbls_deis2016$ClasiEnf %>%
+  mutate(
+    useless = deistools::code_useless(SubCat)
+  ) %>%
+  filter(str_detect(useless, 'Tipo')) %>%
+  print(n = 1000)
+
+tbl_cie10 %>%
+  mutate(
+    useless2 = code_useless(code)
+  ) %>%
+  filter(useless == 0 & str_detect(useless2, 'Tipo') |
+           useless >=1 & is.na(useless2),
+         str_length(code) == 4) %>%
+  select(code, entity, useless, useless2)
+
+
+tbl_cie10 %>%
+  count(suspected_maternal_death)
+
+
+tbl_cie10 %>%
+  anti_join(
+    lkuptbls_deis2016$ClasiEnf, c('code' = 'SubCat')
+  ) %>%
+  filter(str_length(code) == 4)
+
+lkuptbls_deis2016$ClasiEnf %>%
+  filter(str_detect(SubCat, 'C83'))
+
+tbl_cie10 %>%
+  filter(str_detect(code, 'A09'))
+

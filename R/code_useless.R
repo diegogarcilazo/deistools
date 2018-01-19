@@ -3,8 +3,10 @@
 
 code_useless <- function(x){
   dplyr::case_when(
-    stringr::str_detect(x, "A311|A59|A600|A630|B000|B07|B081|B088|B30|J30|J33|J342|J35|K14|L94|M03|M07|M353|M40|M459|
-               N393|N40|N46|N60|N97|Q36|Q381|Q54|B948|B949|Y86|Y872|Y89|I10|I15|I70") ~ "Tipo 1",
+    stringr::str_detect(x,
+      paste0("A311|A59|A600|A630|B000|B07|B081|B088|B30|J30|J33|J342|J35|K14|L94|",
+             "M03|M07|M353|M40|M459|N393|N40|N46|N60|N97|Q36|Q381|Q54|B948|B949|M45X|Y86|",
+             "Y872|Y89|I10|I15|I70")) ~ "Tipo 1",
     (x >= "A710" & x <=  "A74X") ~ "Tipo 1",
     (x >= "B350" & x <=  "B36X") ~ "Tipo 1",
     (x >= "F320" & x <=  "F339") ~ "Tipo 1",
@@ -39,7 +41,8 @@ code_useless <- function(x){
     (x >= "L980" & x <= "L983") ~ "Tipo 1",
     (x >= "L985" & x <= "L989") ~ "Tipo 1",
     (x >= "M436" & x <= "M439") ~ "Tipo 1",
-    stringr::str_detect(x, "A480|A483|G911|G92|I26|I271|I44|I74|I81|J69|J86|J90|J93|J94|K75|M86|N14") ~ "Tipo 2",
+    stringr::str_detect(x, paste0("A480|A483|G911|G92|I26|I271|I44|I74|I81|J69|J86|J90|",
+                                  "J93|J94|K75|M86|N14")) ~ "Tipo 2",
     (x >= "A400" & x <= "A41X") ~ "Tipo 2",
     (x >= "E853" & x <= "E859") ~ "Tipo 2",
     (x >= "E860" & x <= "E87X") ~ "Tipo 2",
