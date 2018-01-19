@@ -1,13 +1,13 @@
 library(pgr)
 library(tidyverse)
 
-devtools::install_github('diegogarcilazo/biotools')
+devtools::install_github('diegogarcilazo/deistools')
 
 devtools::use_package("tidyverse")
 devtools::use_package("readxl")
 devtools::use_package("stringr")
 
-
+devtools::document()
 
 library(biotools)
 
@@ -42,11 +42,7 @@ localidad <- as_tibble(
 
 
 
-devtools::install_github('diegogarcilazo/biotools')
 
-library(biotools)
-
-devtools::document()
 
 critred15 <- readxl::read_excel('data/CritReduc.xls')
 
@@ -85,11 +81,6 @@ grupedad = case_when(
   T ~ NA_character_
 ))
 
-
-devtools::install_github('diegogarcilazo/biotools')
-
-library(biotools)
-
 tbl_critred %>%
   anti_join(critred15b, c('grupedad', 'codmuer'))
 
@@ -102,7 +93,6 @@ critred15b %>%
 
 library(tidyverse)
 library(stringr)
-library(biotools)
 
 con <- pgr::pg_con(mdb1252)
 

@@ -1,8 +1,8 @@
 #' This is a helper function. This function builds the code_redu
 #' by joining the variables year and group age to later join with the tbl_critred.
-#' @param year: Year
-#' @param grupedad: Group age.
-#' @param codmuer: death code.
+#' @param year Year
+#' @param grupedad Group age.
+#' @param codmuer death code.
 #' @return code_redu for join with tbl_critred.
 
 
