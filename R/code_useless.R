@@ -1,5 +1,5 @@
 #' Function that create variable with Type of useless code from CIE10.
-#' @param x chr cie10 code.
+#' @param x chr cie10 four digits code.
 
 code_useless <- function(x){
   dplyr::case_when(

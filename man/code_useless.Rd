@@ -7,7 +7,7 @@
 code_useless(x)
 }
 \arguments{
-\item{x}{chr cie10 code.}
+\item{x}{chr cie10 four digits code.}
 }
 \description{
 Function that create variable with Type of useless code from CIE10.
