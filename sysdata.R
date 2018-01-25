@@ -130,6 +130,6 @@ tbl_critred <- bind_rows(
 
 
 devtools::use_data(list_tbls, tbl_critred, tbl_cie10, tbl,
-                   lookup_discharge, lkuptbls_deis2016, lkuptbls_old,
+                   lookup_discharge, lkup_def_deis, lkup_nv_deis, lkuptbls_old,
                    internal = T, overwrite = T)
 

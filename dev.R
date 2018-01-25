@@ -1,5 +1,6 @@
 library(pgr)
 library(tidyverse)
+library(biotools)
 
 devtools::install_github('diegogarcilazo/deistools')
 
@@ -9,7 +10,7 @@ devtools::use_package("stringr")
 
 devtools::document()
 
-library(biotools)
+
 
 
 
@@ -45,8 +46,6 @@ localidad <- as_tibble(
 
 
 critred15 <- readxl::read_excel('data/CritReduc.xls')
-
-library(tidyverse)
 
 critred15 %>%
   pull(REDUCIB) %>% unique %>% paste0("'",.,"'") %>% cat(sep = '\n')
@@ -90,9 +89,6 @@ critred15b %>%
 
 critred15b %>%
   count(critred15)
-
-library(tidyverse)
-library(stringr)
 
 con <- pgr::pg_con(mdb1252)
 
@@ -159,19 +155,63 @@ tbl_cie10 %>%
   select(code, entity, useless, useless2)
 
 
-tbl_cie10 %>%
-  count(suspected_maternal_death)
+#Armado de lkup tbls de la DEIS para NV.
+
+lkuptbls_nv <- map(
+  c("Depart","País","Variables del IENV"),
+  readxl::read_excel,
+  path = '/home/diego/Documentos/datasets/USUNAC16.xls') %>%
+  setNames(c("Depart","País","IENV"))
+
+lkup_def_deis <- lkuptbls_deis2016
+lkup_nv_deis <- lkuptbls_nv
+
+lkuptbls_nv$JURI <- lkuptbls_nv$IENV[5:28, 5:6]
+lkuptbls_nv$ATPARTO <- lkuptbls_nv$IENV[58:65, 5:6]
+lkuptbls_nv$TIPPARTO <- lkuptbls_nv$IENV[46:48, 5:6]
+lkuptbls_nv$PROVRES <- lkuptbls_nv$IENV[79:103, 5:6]
+lkuptbls_nv$PROVOC <- lkuptbls_nv$IENV[79:103, 5:6]
+lkuptbls_nv$SEXO <- lkuptbls_nv$IENV[37:40, 5:6]
+lkuptbls_nv$OCLOC <- lkuptbls_nv$IENV[69:73, 5:6]
+lkuptbls_nv$MASOCIAD <- lkuptbls_nv$IENV[166:170, 5:6]
+lkuptbls_nv$PASOCIAD <- lkuptbls_nv$IENV[197:201, 5:6]
+lkuptbls_nv$PINSTRUC <- lkuptbls_nv$IENV[180:193, 5:6]
+lkuptbls_nv$MINSTRUC <- lkuptbls_nv$IENV[149:162, 5:6]
+lkuptbls_nv$SITLABOR <- lkuptbls_nv$IENV[205:208, 5:6]
+lkuptbls_nv$MSITCONY <- lkuptbls_nv$IENV[174:176, 5:6]
 
 
-tbl_cie10 %>%
-  anti_join(
-    lkuptbls_deis2016$ClasiEnf, c('code' = 'SubCat')
-  ) %>%
-  filter(str_length(code) == 4)
+lkuptbls_nv$VARS <- lkuptbls_nv$IENV %>%
+  drop_na(CAMPO) %>%
+  select(CAMPO, VARIABLE, TIPO, ANCHO) %>%
+  mutate(
+    is. = case_when(
+      TIPO == 'TEXTO' ~ 'is.character',
+      TIPO == 'NUMERICO' ~ 'is.integer',
+      T ~ TIPO
+    ),
+    ANCHO = as.integer(ANCHO)) %>%
+  left_join(
+    map(names(lkuptbls_nv[c(4:16)]),
+        ~ lkuptbls_nv[[.x]] %>%
+          mutate(
+            CAMPO = .x,
+          )) %>%
+      bind_rows(), 'CAMPO') %>%
+  group_by(CAMPO, VARIABLE, is.) %>%
+  nest(CODIGOS, DESCRIPCION, .key = 'CLASS') %>%
+  mutate(
+    CLASS = case_when(
+      CAMPO == 'DEPRES' ~ list(lkuptbls_nv$Depart),
+      CAMPO == 'DEPOC' ~ list(lkuptbls_nv$Depart),
+      CAMPO == 'PROVRES' ~ list(lkuptbls_nv$JURI),
+      CAMPO == 'PROVOC' ~ list(lkuptbls_nv$JURI),
+      CAMPO == 'PAISRES' ~ list(lkuptbls_nv$País),
+      is. == 'is.integer' ~ list(NA_integer_),
+      str_detect(VARIABLE, 'FECHA') ~ list(NA_character_),
+      T ~ CLASS)) %>% print(n = 100)
 
-lkuptbls_deis2016$ClasiEnf %>%
-  filter(str_detect(SubCat, 'C83'))
-
-tbl_cie10 %>%
-  filter(str_detect(code, 'A09'))
+lkuptbls_deis2016$VARS <- lkuptbls_nv$IENV %>%
+  select(CAMPO, VARIABLE, TIPO) %>%
+  drop_na() %>% print(n = 100)
 
