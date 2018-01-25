@@ -133,7 +133,3 @@ devtools::use_data(list_tbls, tbl_critred, tbl_cie10, tbl,
                    lookup_discharge, lkuptbls_deis2016, lkuptbls_old,
                    internal = T, overwrite = T)
 
-
-
-
-
