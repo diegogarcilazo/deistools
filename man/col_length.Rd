@@ -2,7 +2,8 @@
 % Please edit documentation in R/check_functions.R
 \name{col_length}
 \alias{col_length}
-\title{Return a message if all columns are or not are present by compare intersection length.}
+\title{Return a message if all columns are or not are present by compare intersection length.
+Works for DEIS datasets.}
 \usage{
 col_length(tbl_1, vital_fact = "deaths")
 }
@@ -13,4 +14,5 @@ col_length(tbl_1, vital_fact = "deaths")
 }
 \description{
 Return a message if all columns are or not are present by compare intersection length.
+Works for DEIS datasets.
 }

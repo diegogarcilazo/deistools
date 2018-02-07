@@ -12,8 +12,6 @@ devtools::document()
 
 
 
-
-
 lookup_discharge$tippart <-
   rename(terminac, codtippart = CodTerm, terminac = Terminac) %>%
   mutate_all(
@@ -40,8 +38,6 @@ localidad <- as_tibble(
     stringr::str_subset(
       lookup_discharge$establec$est_localidad,'[0-9]{3}'),' ', n = 2,simplify = T)
 )
-
-
 
 
 
@@ -79,16 +75,6 @@ grupedad = case_when(
   NEOPOS == 'POS' ~ 'POSNEONATAL',
   T ~ NA_character_
 ))
-
-tbl_critred %>%
-  anti_join(critred15b, c('grupedad', 'codmuer'))
-
-
-critred15b %>%
-  count(grupedad)
-
-critred15b %>%
-  count(critred15)
 
 con <- pgr::pg_con(mdb1252)
 
@@ -214,4 +200,72 @@ lkuptbls_nv$VARS <- lkuptbls_nv$IENV %>%
 lkuptbls_deis2016$VARS <- lkuptbls_nv$IENV %>%
   select(CAMPO, VARIABLE, TIPO) %>%
   drop_na() %>% print(n = 100)
+
+
+enos <- readxl::read_excel('data/enos2cie10.xlsx')
+
+enos2 <-
+  enos %>%
+  mutate(
+   group = case_when(
+     !str_detect(EVENTOS, "[0-9]") ~ EVENTOS),
+   group = zoo::na.locf(lag(group), na.rm = F)) %>%
+  filter(str_detect(EVENTOS, "[0-9]")) %>%
+  transmute(
+       EVENTOS = str_replace(EVENTOS, "[0-9]\\. ", ''),
+      CODIGO = str_replace_all(`capitulo I al XIX`, '[\\.,]',''),
+     CODIGO = if_else(is.na(CODIGO), `CAUSA EXTERNA (CAPITULO XX)`,CODIGO),
+     CODIGO = str_replace_all(CODIGO, ' ', ''),
+     CODIGO = if_else(EVENTOS == 'BRONQUIOLITIS', 'J21', CODIGO),
+     EVENTOS = paste(row_number(), '-',EVENTOS)
+     )
+
+
+enos2 %>%
+  filter(str_detect(CODIGO,'-')) %>%
+  separate(CODIGO, c('From','To')) %>%
+  separate(To, c('To','except'), 'excepto') %>%
+  mutate(
+    except = str_replace(except, 'e', ', '),
+    From = str_pad(From, 4, 'right', '0'),
+    To = str_pad(To, 4, 'right', 'X'),
+    range = paste0("(x >= '", From, "' & ", "x <= '", To, "')"),
+    exception = paste0("!x %in% c(", except, ")"),
+    code = if_else(is.na(except), paste0(range, ' ~ ', "'",EVENTOS,"'"),
+                   paste0(range, " & ", exception, ' ~ ', "'" ,EVENTOS,"'"))
+  ) %>%
+  pull(code) %>%
+  cat(sep = ',\n')
+
+
+enos2 %>%
+  filter(!str_detect(CODIGO,'-')) %>%
+  mutate(
+    CODIGO = str_replace(CODIGO, '\\(provisional\\)',''),
+    code = paste0("str_detect(x, '", CODIGO, "') ~ '", EVENTOS, "'")) %>%
+  pull(code) %>%
+  cat(sep = ',\n')
+
+
+tbl(con, dbplyr::in_schema('mortalidad', 'usudef16')) %>%
+  collect %>%
+  mutate(
+    enos = code_enos(codmuer, edad, uniedad)
+  ) %>%
+  count(enos, grupedad) %>%
+  arrange(desc(n), enos) %>%
+  filter(str_detect(enos, 'MENIN')) %>%
+  print(n = 300)
+
+
+
+usudef16 %>%
+  check_cie10(juri, edad, uniedad, codmuer, sexo)
+
+
+
+
+
+
+
 

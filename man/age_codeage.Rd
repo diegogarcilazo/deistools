@@ -2,7 +2,7 @@
 % Please edit documentation in R/age_codeage.R
 \name{age_codeage}
 \alias{age_codeage}
-\title{recode age group from two variables age and code_age. Assume code_age levels 1 = years, 2 = months, 3 = days, 4 = hours, 5 = minutes.}
+\title{recode age group from two variables age and code_age.}
 \usage{
 age_codeage(age, code_age)
 }
@@ -15,5 +15,5 @@ age_codeage(age, code_age)
 ordered factor with age groups.
 }
 \description{
-recode age group from two variables age and code_age. Assume code_age levels 1 = years, 2 = months, 3 = days, 4 = hours, 5 = minutes.
+recode age group from two variables age and code_age.
 }

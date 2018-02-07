@@ -1,5 +1,10 @@
 library(tidyverse)
 
+
+devtools::use_data(list_tbls, tbl_critred, tbl_cie10, tbl, cie10_check,
+                   lookup_discharge, lkup_def_deis, lkup_nv_deis, lkuptbls_old,
+                   internal = T, overwrite = T)
+
 # Function that link to database download from
 # http://www.paho.org/hq/index.php?option=com_docman&task=doc_download&gid=23700&Itemid=270&lang=en
 
@@ -7,16 +12,28 @@ update_cie10 <- function() {
   tbl <- readxl::read_excel('data/Volumen1CatalogoCIE-10.xls',
                             sheet = 'CatalogoVolumen1', range = 'B5:Y14423') %>%
     dplyr::select(code = Clave, entity = Nombre, chapter = Capítulo,
+                  asterisco = Asterisco,
+                  trivial = Trivial,
                   useless = `Lista causas poco útiles`,
+                  no_cbd = `No_Causa Básica Defuncion`,
                   suspected_maternal_death = `Lista causa sospechosas de encubrir muerte materna`,
                   fetal = Fetal,
                   sex_limited = `Limitada a un sexo`,
-                  age_lower = `Límite Inferior de edad`, age_upper = `Límite Superior de edad`) %>%
+                  age_lower = `Límite Inferior de edad`,
+                  age_upper = `Límite Superior de edad`) %>%
     dplyr::mutate_if(is.character,
                      function(x) toupper(myutilities::acc_rm(x))
     )
   return(tbl)
 }
+
+
+suspected_maternal_death <- readxl::read_excel(
+  'data/Listas_Asociadas-Catalogo.xls',
+  sheet = 'Lista de causas sospechosas', range = 'A3:C58') %>%
+  dplyr::transmute(code = as.integer(N.), SMD_description = Descripción, cie10 = `Códigos CIE-10`) %>%
+  dplyr::mutate_if(is.character, ~ toupper(myutilities::acc_rm(.x)))
+
 
 tbl_cie10 <- update_cie10()
 
@@ -129,7 +146,37 @@ tbl_critred <- bind_rows(
   transmute(code_redu = paste0(codmuer, code_redu), critred)
 
 
-devtools::use_data(list_tbls, tbl_critred, tbl_cie10, tbl,
-                   lookup_discharge, lkup_def_deis, lkup_nv_deis, lkuptbls_old,
-                   internal = T, overwrite = T)
+
+#Crea tabla para chequeos
+
+cie10_check <- tbl_cie10 %>%
+  transmute(
+    code,
+    entity,
+    asterisco = if_else(asterisco == 'T', T, F),
+    trivial = if_else(trivial == 'T', T, F),
+    no_cbd = if_else(no_cbd == 'T', T, F),
+    useless = as.character(useless),
+    fetal = if_else(fetal == 'T', T, F),
+    suspected_maternal_death = as.integer(suspected_maternal_death),
+    sex_limited,
+    code_age_upper = str_replace_all(age_upper, '[^A-Z]', ''),
+    code_age_lower = str_replace_all(age_lower, '[^A-Z]', ''),
+    code_age_upper = case_when(
+      code_age_upper == 'H' ~ 4,
+      code_age_upper == 'D' ~ 3,
+      code_age_upper == 'M' ~ 2,
+      code_age_upper == 'A' ~ 1,
+      T ~ NaN),
+    code_age_lower = case_when(
+      code_age_lower == 'H' ~ 4,
+      code_age_lower == 'D' ~ 3,
+      code_age_lower == 'M' ~ 2,
+      code_age_lower == 'A' ~ 1,
+      T ~ NaN),
+    age_upper = as.numeric(str_replace_all(age_upper, '[A-Z]', '')),
+    age_lower = as.numeric(str_replace_all(age_lower, '[A-Z]', '')),
+    days_age_upper = rec_age2day(age_upper, code_age_upper),
+    days_age_lower = rec_age2day(age_lower, code_age_lower)) %>%
+  left_join(suspected_maternal_death, c('suspected_maternal_death' = 'code'))
 
