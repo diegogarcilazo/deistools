@@ -4,16 +4,16 @@
 \alias{check_cie10}
 \title{Function to check cie10 code by}
 \usage{
-check_cie10(db, id, age, code_age, code_cie10, sex)
+check_cie10(db, age, code_age, code_cie10, sex, ...)
 }
 \arguments{
 \item{db}{dataset. death.}
 
-\item{id}{unique identification of registry.}
-
 \item{age}{age.}
 
 \item{sex}{sex.}
+
+\item{...}{vars for identification.}
 
 \item{code_age.}{1 years. 2 months. 3 days. 4 hours.}
 

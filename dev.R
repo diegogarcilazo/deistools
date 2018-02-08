@@ -11,7 +11,6 @@ devtools::use_package("stringr")
 devtools::document()
 
 
-
 lookup_discharge$tippart <-
   rename(terminac, codtippart = CodTerm, terminac = Terminac) %>%
   mutate_all(
@@ -258,6 +257,9 @@ tbl(con, dbplyr::in_schema('mortalidad', 'usudef16')) %>%
   print(n = 300)
 
 
+
+con <- pgr::pg_con(mdb1252)
+usudef16 <- tbl(con, dbplyr::in_schema('mortalidad','usudef16')) %>% collect()
 
 usudef16 %>%
   check_cie10(juri, edad, uniedad, codmuer, sexo)

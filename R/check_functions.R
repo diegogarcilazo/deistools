@@ -21,15 +21,15 @@ col_length <- function(tbl_1, vital_fact = 'deaths'){
 
 #'Function to check cie10 code by
 #'@param db dataset. death.
-#'@param id unique identification of registry.
 #'@param age age.
 #'@param code_age. 1 years. 2 months. 3 days. 4 hours.
 #'@param code_cie10. Vars with code of 3 or 4 letters.
 #'@param sex sex.
+#'@param ... vars for identification.
 
-check_cie10 <- function(db, id, age, code_age, code_cie10, sex){
+check_cie10 <- function(db, age, code_age, code_cie10, sex, ...){
 
-  id <- enquo(id)
+  id <- quos(...)
   age <- enquo(age)
   code_age <- enquo(code_age)
   code_cie10 <- substitute(code_cie10)
@@ -47,40 +47,55 @@ tbl_complete_ck <- join %>%
     mutate(
       age_out = !((code_age_check > days_age_lower) &
                     (code_age_check < days_age_upper)),
-      sex_out = (sex_limited != !!sex)) %>%
-    select(!!id, !!code_cie10, entity, !!age, !!code_age, age_out,
-           days_age_lower, days_age_upper, useless, no_cbd, asterisco,
-           trivial, sex_out, SMD_description) %>%
+      sex_out = (sex_limited != !!sex),
+      SMD_in = !is.na(SMD_description) & is.element(!!sex, 2) & is.element(!!code_age, 1) &
+        between(!!age, 11, 49)) %>%
+    select(!!!id, !!code_cie10, entity, useless, no_cbd, asterisco, trivial,
+           !!age, !!code_age, age_out, days_age_lower, days_age_upper,
+           !!sex, sex_out, SMD_in) %>%
     filter(age_out | useless %in% 1:5 | no_cbd | asterisco |
-             trivial | sex_out | suspected_maternal_death %in% 1:55)
+             trivial | sex_out | SMD_in)
+
+ summary_1 <- tbl_complete_ck %>%
+   summarise(
+     `Age limit` = sum(age_out, na.rm = T),
+     `Asterisk code` = sum(asterisco, na.rm = T),
+     Trivial = sum(trivial, na.rm = T),
+     `No CBD` = sum(no_cbd, na.rm = T),
+     Useless = sum(useless %in% 1:5, na.rm = T),
+     `Limited to one sex` = sum(sex_out, na.rm = T),
+     SMD = sum(SMD_in, na.rm = T)
+   )
 
 
-# Asterisco:	Código de asterisco, son validos como códigos adicionales,
-#  no se aceptan como causa básica (F = No asterisco, T = Si asterisco)
+cat("-------------------------------------------------------------------\n",
+    'Check summary\n',
+    "-------------------------------------------------------------------\n\n")
+
+cat(
+paste0('> ',
+  colnames(summary_1), ': ',
+  as.numeric(summary_1[1,]), '\n'
+))
+
+cat(
+  "\n\n",
+"> Asterisk code: are valid as additional codes but are not accepted as\na basic cause of death.",
+"> Trivial: conditions unlikely to cause death.",
+"> No CBD: It is not valid as a Basic Cause of Death.",
+"> Limited to one sex: Identifies restriction codes associated with gender",
+"> Age limit: Out of Age limit accepted",
+"> SMD: Suspected Maternal Death",
+sep = '\n')
 
 
-# Trivial	Afecciones poco probables de provocar la muerte F = No trivial, T = Trivial.
 
 
-# No CBD	No es válida como Causa Básica de Defunción
-#  F = Si es causa válida, T = No es causa válida
-
-
-# Lmitada a un sexo	Identifica la restricción de códigos asociadas al sexo
-#  1 = masculino, 2 = femenino.
-
-# Límite Inferior de edad	Límite de edad inferior aceptado (sugerido) (H = horas, D = Días, M = Meses, A = Años)
-# Límite Superior de edad	Límite de edad superior aceptado (sugerido) (D = Días, M = Meses, A = Años)
-
-
-return(
+invisible(
   tbl_complete_ck
   )
 
 }
-
-
-
 
 
 compare_class <- function(c){
