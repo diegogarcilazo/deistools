@@ -9,8 +9,8 @@ devtools::use_package("readxl")
 devtools::use_package("stringr")
 
 devtools::document()
-
-
+devtools::use_test("testing")
+devtools::use_testthat()
 
 lookup_discharge$tippart <-
   rename(terminac, codtippart = CodTerm, terminac = Terminac) %>%
