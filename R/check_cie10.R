@@ -1,60 +1,158 @@
-#'Function to check cie10 code by
+cie_tbl_errors <-  function (x, ...) UseMethod('cie_tbl_errors', x);
+
+cie_tbl_warnings <-  function (x, ...) UseMethod('cie_tbl_warnings', x);
+
+cie_tbl_all <- function(x,...) UseMethod('cie_tbl_all', x);
+
+cie_summary <- function(x,...) UseMethod('cie_summary', x);
+
+is.cie_check <- function(x, ...) inherits(x, "cie_check");
+
+#'Function to check CIE code by range of age, Suspected maternal death,
+#'Valid cause of death, unlikely cause of death and sex restriction.
 #'@param db dataset. death.
-#'@param id unique identification of registry.
 #'@param age age.
 #'@param code_age. 1 years. 2 months. 3 days. 4 hours.
 #'@param code_cie10. Vars with code of 3 or 4 letters.
 #'@param sex sex.
+#'@param ... vars for identification.
 
-check_cie10 <- function(db, id, age, code_age, code_cie10, sex){
+check_cie10 <- function(db, age, code_age, code_cie10, sex, ...){
 
-  id <- enquo(id)
-  age <- enquo(age)
-  code_age <- enquo(code_age)
+#Capture expressions.########################################################
+
+  id <- dplyr::quos(...)
+  age <- dplyr::enquo(age)
+  code_age <- dplyr::enquo(code_age)
   code_cie10 <- substitute(code_cie10)
-  sex <- enquo(sex)
+  sex <- dplyr::enquo(sex)
+  by <- `names<-`('code', deparse(code_cie10))
+  db_name <- deparse(substitute(db))
 
-  deistools::cie10_check %>% rename(!!code_cie10 := code)
+#Join tables and create logical vars.########################################
+tbl_complete_ck <- db %>%
 
+  dplyr::mutate(
+      code_age_check = deistools::rec_age2day(as.numeric(!!age), !!code_age)
+    ) %>%
 
-  db %>% mutate(
-    code_age_check = rec_age2day(as.numeric(!!age), !!code_age)
-  ) %>%
-    left_join(cie10_check %>%
-                rename(!!code_cie10 := code)) %>%
-    mutate(
+  dplyr::left_join(deistools::cie10_check, by) %>%
+
+  dplyr::mutate(
       age_out = !((code_age_check > days_age_lower) &
                     (code_age_check < days_age_upper)),
-      sex_out = (sex_limited != !!sex)) %>%
-    select(!!id, !!code_cie10, entity, !!age, !!code_age, age_out,
-           days_age_lower, days_age_upper, useless, no_cbd, asterisco,
-           trivial, sex_out, SMD_description) %>%
-    filter(age_out | useless %in% 1:5 | no_cbd | asterisco |
-             trivial | sex_out | !is.na(SMD_description))
+      sex_out = (sex_limited != !!sex),
+      SMD_in = !is.na(SMD_description) &
+        (!!sex) == 2 & ((!!code_age) == 1 & dplyr::between(!!age, 11, 49))) %>%
 
+  dplyr::select(!!!id, !!code_cie10, entity, useless, no_cbd, asterisco,
+                trivial, !!age, !!code_age, age_out, days_age_lower,
+                days_age_upper, !!sex, sex_out, SMD_in) %>%
 
-  # Asterisco:	Código de asterisco, son validos como códigos adicionales,
-  #  no se aceptan como causa básica (F = No asterisco, T = Si asterisco)
+  dplyr::filter(age_out | useless %in% 1:5 | no_cbd | asterisco |
+             trivial | sex_out | SMD_in) %>%
+    mutate(
+      i_no_cbd = if_else(no_cbd, 'Not Valid BCD', '???'),
+      i_asterisco = if_else(asterisco, 'Not accepted as BCD', '???'),
+      i_age_out = if_else(age_out, 'Out of age limits', '???'),
+      i_sex_out = if_else(sex_out, 'Sex restriction', '???'),
+      i_error = paste(i_no_cbd, i_asterisco, i_age_out, i_sex_out, sep = ' '),
+      i_error = str_remove_all(i_error, '\\?\\?\\?|NA'),
+      i_error = str_trim(i_error),
+      error = ifelse(i_error == "", NA_character_, i_error),
+      i_useless = ifelse(useless %in% 1:5, 'Useless code', '???'),
+      i_trivial = ifelse(trivial, 'Unlikely to cause death', '???'),
+      i_SMD_in = ifelse(SMD_in, 'Suspected Maternal Death', '???'),
+      i_warning = paste(i_useless, i_trivial, i_SMD_in, sep = ' '),
+      i_warning = str_remove_all(i_warning, '\\?\\?\\?|NA'),
+      i_warning = str_trim(i_warning),
+      warning = ifelse(i_warning == "", NA_character_, i_warning)
+    )  %>% select(-starts_with('i_'))
 
+  #############################################################################
+#Create cie_check class
+  cie_check <- list(df = tbl_complete_ck,
+                    n_rows = dim(db)[1],
+                    db_name = db_name)
 
-  # Trivial	Afecciones poco probables de provocar la muerte F = No trivial, T = Trivial.
+  class(cie_check) <- 'cie_check'
 
-
-  # No CBD	No es válida como Causa Básica de Defunción
-  #  F = Si es causa válida, T = No es causa válida
-
-
-  # Lmitada a un sexo	Identifica la restricción de códigos asociadas al sexo
-  #  1 = masculino, 2 = femenino.
-
-  # Límite Inferior de edad	Límite de edad inferior aceptado (sugerido) (H = horas, D = Días, M = Meses, A = Años)
-  # Límite Superior de edad	Límite de edad superior aceptado (sugerido) (D = Días, M = Meses, A = Años)
-
-
-  return(
-    tbl_complete_ck
-  )
-
+  invisible(cie_check)
 }
 
 
+#'create table with errors
+#'@param x object class cie_check
+#'@return tibble.
+cie_tbl_errors.cie_check <- function(x) {
+  stopifnot(is.cie_check(x))
+  x$df %>%
+    filter(age_out | no_cbd | asterisco | sex_out) %>%
+    select(-useless, -trivial, -SMD_in, -warning, -sex_out,
+           -age_out, -no_cbd, -asterisco, -days_age_lower,
+           -days_age_upper)}
+
+#'create table with warnings
+#'@param x object class cie_check
+#'@return tibble.
+cie_tbl_warnings.cie_check <- function(x) {
+  stopifnot(is.cie_check(x))
+  x$df %>%
+    filter(useless %in% 1:5 | trivial | SMD_in) %>%
+    select(-age_out, -trivial, -days_age_lower, -days_age_upper,
+           -no_cbd, -asterisco, -sex_out, -SMD_in, -error)}
+
+
+#'create table with errors and warnings.
+#'@param x object class cie_check
+#'@return tibble.
+cie_tbl_all.cie_check <- function(x) {
+  stopifnot(is.cie_check(x))
+  x$df}
+
+
+#' Create summary report on console
+#' @param x object class cie_check
+cie_summary.cie_check <- function(x) {
+stopifnot(is.cie_check(x))
+summary_1 <- x$df %>%
+    dplyr::summarise(
+      `Age limit` = sum(age_out, na.rm = T),
+      `Asterisk code` = sum(asterisco, na.rm = T),
+      Trivial = sum(trivial, na.rm = T),
+      `No CBD` = sum(no_cbd, na.rm = T),
+      Useless = sum(useless %in% 1:5, na.rm = T),
+      `Limited to one sex` = sum(sex_out, na.rm = T),
+      SMD = sum(SMD_in, na.rm = T)
+    ) %>%
+    as.data.frame() %>%
+    `rownames<-`(.,'n') %>%
+    rownames_to_column %>%
+    gather(indicator, value, -rowname) %>%
+    spread(rowname, value) %>%
+    mutate(pct = round(n * 100/ x$n_rows,1))
+
+cat("\nCheck summary")
+cat("\n")
+cat(strrep('-', 70))
+cat("\n")
+cat("Dataset: ", x$db_name , "\nn = ", x$n_rows)
+cat("\nErrors = ",
+    suppressMessages(pull(tally(x$df %>%
+                                  filter(age_out | no_cbd | asterisco | sex_out)))))
+cat("\nWarnings = ",
+    suppressMessages(pull(tally(x$df %>%
+                                  filter(useless %in% 1:5 | trivial | SMD_in)))))
+cat("\n\n")
+print(summary_1)
+cat(strrep('-', 70))
+cat('\n')
+cat(
+  "# Asterisk: are valid as additional codes but are not accepted as\n\t    a basic cause of death.",
+  "# Trivial: conditions unlikely to cause death.",
+  "# No CBD: It is not valid as a Basic Cause of Death.",
+  "# Limited to one sex: Identifies restriction codes associated with\n\t     gender.",
+  "# Age limit: Out of Age limit accepted.",
+  "# SMD: Suspected Maternal Death.",
+  sep = '\n')
+}

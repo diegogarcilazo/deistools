@@ -1,0 +1,16 @@
+# A tibble: 11 x 14
+   depoc codmuer entity             no_cbd asterisco trivial  edad uniedad age_out
+   <chr> <chr>   <chr>              <lgl>  <lgl>     <lgl>   <int>   <int> <lgl>  
+ 1 063   R960    MUERTE INSTANTANEA F      F         F           1       1 T      
+ 2 008   I64X    ACCIDENTE VASCULA~ F      F         F           9       1 T      
+ 3 105   G300    ENFERMEDAD DE ALZ~ F      F         F          70       1 T      
+ 4 015   P070    PESO EXTREMADAMEN~ F      F         F           0       4 T      
+ 5 008   P070    PESO EXTREMADAMEN~ F      F         F           0       4 T      
+ 6 049   P070    PESO EXTREMADAMEN~ F      F         F           0       4 T      
+ 7 015   P070    PESO EXTREMADAMEN~ F      F         F           0       4 T      
+ 8 015   P070    PESO EXTREMADAMEN~ F      F         F           0       4 T      
+ 9 015   P070    PESO EXTREMADAMEN~ F      F         F           0       4 T      
+10 015   P220    SINDROME DE DIFIC~ F      F         F           0       4 T      
+11 098   P60X    COAGULACION INTRA~ F      F         F           0       4 T      
+# ... with 5 more variables: days_age_lower <dbl>, days_age_upper <dbl>,
+#   sexo <int>, sex_out <lgl>, SMD_in <lgl>

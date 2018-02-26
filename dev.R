@@ -257,18 +257,3 @@ tbl(con, dbplyr::in_schema('mortalidad', 'usudef16')) %>%
   filter(str_detect(enos, 'MENIN')) %>%
   print(n = 300)
 
-
-
-con <- pgr::pg_con(mdb1252)
-usudef16 <- tbl(con, dbplyr::in_schema('mortalidad','usudef16')) %>% collect()
-
-usudef16 %>%
-  check_cie10(juri, edad, uniedad, codmuer, sexo)
-
-
-
-
-
-
-
-

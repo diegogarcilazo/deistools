@@ -2,7 +2,8 @@
 % Please edit documentation in R/check_cie10.R
 \name{check_cie10}
 \alias{check_cie10}
-\title{Function to check cie10 code by}
+\title{Function to check CIE code by range of age, Suspected maternal death,
+Valid cause of death, unlikely cause of death and sex restriction.}
 \usage{
 check_cie10(db, age, code_age, code_cie10, sex, ...)
 }
@@ -20,5 +21,6 @@ check_cie10(db, age, code_age, code_cie10, sex, ...)
 \item{code_cie10.}{Vars with code of 3 or 4 letters.}
 }
 \description{
-Function to check cie10 code by
+Function to check CIE code by range of age, Suspected maternal death,
+Valid cause of death, unlikely cause of death and sex restriction.
 }
