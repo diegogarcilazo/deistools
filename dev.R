@@ -1,6 +1,6 @@
 library(pgr)
 library(tidyverse)
-library(biotools)
+library(deistools)
 
 devtools::install_github('diegogarcilazo/deistools')
 
@@ -263,8 +263,9 @@ tbl(con, dbplyr::in_schema('mortalidad', 'usudef16')) %>%
   print(n = 300)
 
 
-a <- test_df %>%
-  cie_check(edad, unieda, codmuer, sexo, juri)
 
-a %>% cie_summary()
+test_df %>%
+  cie_check(edad, unieda, codmuer, sexo, juri) %>%
+  cie_tbl_warnings() %>%
+  View()
 
