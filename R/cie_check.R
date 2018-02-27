@@ -17,7 +17,7 @@ is.cie_check <- function(x, ...) inherits(x, "cie_check");
 #'@param sex sex.
 #'@param ... vars for identification.
 
-check_cie10 <- function(db, age, code_age, code_cie10, sex, ...){
+cie_check <- function(db, age, code_age, code_cie10, sex, ...){
 
 #Capture expressions.########################################################
 

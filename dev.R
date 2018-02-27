@@ -12,6 +12,11 @@ devtools::document()
 devtools::use_test("testing")
 devtools::use_testthat()
 
+
+con <- pgr::pg_con(mdb1252)
+
+def_inf_i08 <- tbl(con, dbplyr::in_schema('mi','def_inf_i08'))
+
 lookup_discharge$tippart <-
   rename(terminac, codtippart = CodTerm, terminac = Terminac) %>%
   mutate_all(
@@ -256,4 +261,10 @@ tbl(con, dbplyr::in_schema('mortalidad', 'usudef16')) %>%
   arrange(desc(n), enos) %>%
   filter(str_detect(enos, 'MENIN')) %>%
   print(n = 300)
+
+
+a <- test_df %>%
+  cie_check(edad, unieda, codmuer, sexo, juri)
+
+a %>% cie_summary()
 

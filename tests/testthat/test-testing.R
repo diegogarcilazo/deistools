@@ -1,16 +1,20 @@
 context("testing")
 
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
-})
-
-
-
-testthat::test_that("check_cie10 works",
+testthat::test_that("cie_check works",
           {
   testthat::expect_identical(
     test_df %>%
-      check_cie10(edad, unieda, codmuer, sexo, juri),
-    test_output
+      cie_check(edad, unieda, codmuer, sexo, juri),
+    test_output_cie_check
   )
           })
+
+
+testthat::test_that("cie_tbl_all works",
+                    {
+                      testthat::expect_identical(
+                        test_output %>%
+                          cie_tbl_all(),
+                        test_output_cie_tbl_all
+                      )
+                    })
