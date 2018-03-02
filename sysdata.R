@@ -6,8 +6,6 @@ devtools::use_data(list_tbls, tbl_critred, tbl_cie10, tbl, cie10_check, test_df,
                    test_output_cie_check, test_output_cie_tbl_all, internal = T,
                    overwrite = T)
 
-
-
 # Function that link to database download from
 # # http://www.paho.org/hq/index.php?option=com_docman&task=doc_download&gid=23700&Itemid=270&lang=en
 

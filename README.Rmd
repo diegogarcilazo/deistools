@@ -44,7 +44,7 @@ suppressMessages(library(tidyverse))
 library(deistools)
 
 obj_check <- test_df %>%
-      cie_check(edad, unieda, codmuer, sexo, juri)
+      cie_check(edad, unieda, codmuer, sexo, id)
 ```
 
 Con la utilización de funciones adicionales se puede realizar la exploración de este chequeo.

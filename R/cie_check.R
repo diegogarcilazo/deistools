@@ -54,22 +54,22 @@ tbl_complete_ck <- db %>%
   dplyr::filter(age_out | useless %in% 1:5 | no_cbd | asterisco |
              trivial | sex_out | SMD_in) %>%
     dplyr::mutate(
-      i_no_cbd = if_else(no_cbd, 'Not Valid BCD', '???'),
-      i_asterisco = if_else(asterisco, 'Not accepted as BCD', '???'),
-      i_age_out = if_else(age_out, 'Out of age limits', '???'),
-      i_sex_out = if_else(sex_out, 'Sex restriction', '???'),
+      i_no_cbd = dplyr::if_else(no_cbd, 'Not Valid BCD', '???'),
+      i_asterisco = dplyr::if_else(asterisco, 'Not accepted as BCD', '???'),
+      i_age_out = dplyr::if_else(age_out, 'Out of age limits', '???'),
+      i_sex_out = dplyr::if_else(sex_out, 'Sex restriction', '???'),
       i_error = paste(i_no_cbd, i_asterisco, i_age_out, i_sex_out, sep = ' '),
-      i_error = str_remove_all(i_error, '\\?\\?\\?|NA'),
-      i_error = str_trim(i_error),
+      i_error = stringr::str_remove_all(i_error, '\\?\\?\\?|NA'),
+      i_error = stringr::str_trim(i_error),
       error = ifelse(i_error == "", NA_character_, i_error),
       i_useless = ifelse(useless %in% 1:5, 'Useless code', '???'),
       i_trivial = ifelse(trivial, 'Unlikely to cause death', '???'),
       i_SMD_in = ifelse(SMD_in, 'Suspected Maternal Death', '???'),
       i_warning = paste(i_useless, i_trivial, i_SMD_in, sep = ' '),
-      i_warning = str_remove_all(i_warning, '\\?\\?\\?|NA'),
-      i_warning = str_trim(i_warning),
+      i_warning = stringr::str_remove_all(i_warning, '\\?\\?\\?|NA'),
+      i_warning = stringr::str_trim(i_warning),
       warning = ifelse(i_warning == "", NA_character_, i_warning)
-    )  %>% dplyr::select(-starts_with('i_'))
+    )  %>% dplyr::select(-dplyr::starts_with('i_'))
 
 
 tbl_enos <- db %>%
@@ -99,7 +99,7 @@ cie_tbl_errors.cie_check <- function(x) {
     filter(age_out | no_cbd | asterisco | sex_out) %>%
     select(-useless, -trivial, -SMD_in, -warning, -sex_out,
            -age_out, -no_cbd, -asterisco, -days_age_lower,
-           -days_age_upper, -enos)}
+           -days_age_upper)}
 
 #'create table with warnings
 #'@param x object class cie_check
@@ -109,7 +109,7 @@ cie_tbl_warnings.cie_check <- function(x) {
   x$df %>%
     filter(useless %in% 1:5 | trivial | SMD_in) %>%
     select(-age_out, -trivial, -days_age_lower, -days_age_upper,
-           -no_cbd, -asterisco, -sex_out, -SMD_in, -error, -enos)}
+           -no_cbd, -asterisco, -sex_out, -SMD_in, -error)}
 
 
 #'create table with errors and warnings.

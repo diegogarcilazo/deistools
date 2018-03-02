@@ -9,7 +9,6 @@ testthat::test_that("cie_check works",
   )
           })
 
-
 testthat::test_that("cie_tbl_all works",
                     {
                       testthat::expect_identical(
