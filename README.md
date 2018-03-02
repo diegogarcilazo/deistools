@@ -33,14 +33,17 @@ Alertas (warnings)\*:
 
 \* Fuente de información: Se utilizó la tablas sugeridas por <http://www.paho.org/hq/index.php?option=com_docman&task=doc_download&gid=23700&Itemid=270&lang=en>
 
-La función cie\_check genera el objeto de clase cie\_check al ingresar los datos de edad, unidad de la edad, código de muerte, sexo y las variables que consideremos de identificación de los registros.
+Función cie\_check
+------------------
+
+La función cie\_check es la más importante ya que genera el objeto de clase cie\_check que nos permitirá utilizar las demás funciones de chequeo. Al ingresar los datos de edad, unidad de la edad, código de muerte, sexo y las variables que consideremos de identificación de los registros.
 
 ``` r
 suppressMessages(library(tidyverse))
 library(deistools)
 
 obj_check <- test_df %>%
-      cie_check(edad, unieda, codmuer, sexo, juri)
+      cie_check(edad, unieda, codmuer, sexo, id)
 ```
 
 Con la utilización de funciones adicionales se puede realizar la exploración de este chequeo. La función cie\_summary() nos da un resumen de los errores y alertas que tiene la base.
@@ -84,7 +87,7 @@ obj_check %>%
 ```
 
     ## # A tibble: 5 x 7
-    ##    juri codmuer entity                         edad unieda  sexo error    
+    ##      id codmuer entity                         edad unieda  sexo error    
     ##   <int> <chr>   <chr>                         <int>  <int> <int> <chr>    
     ## 1    78 C793    TUMOR MALIGNO SECUNDARIO DEL~    39      1     2 Not Vali~
     ## 2    18 P220    SINDROME DE DIFICULTAD RESPI~     0      4     2 Out of a~
@@ -100,7 +103,7 @@ obj_check %>%
 ```
 
     ## # A tibble: 376 x 8
-    ##     juri codmuer entity              useless  edad unieda  sexo warning   
+    ##       id codmuer entity              useless  edad unieda  sexo warning   
     ##    <int> <chr>   <chr>               <chr>   <int>  <int> <int> <chr>     
     ##  1     6 I509    INSUFICIENCIA CARD~ 2          74      1     2 Useless c~
     ##  2     6 I509    INSUFICIENCIA CARD~ 2          88      1     2 Useless c~
@@ -113,3 +116,41 @@ obj_check %>%
     ##  9    66 J81X    EDEMA PULMONAR      2          71      1     1 Useless c~
     ## 10    82 R99X    OTRAS CAUSAS MAL D~ 5          49      1     1 Useless c~
     ## # ... with 366 more rows
+
+Búsqueda de casos de notificación obligatoria
+---------------------------------------------
+
+Es útil poder determinar cuales son aquellas enfermedades que se deben notificar para evaluar la reparación con las áreas de epidemiología. Por el momento identifica aquellas causas de origen infeccioso.
+
+``` r
+obj_check %>% 
+ cie_tbl_enos()
+```
+
+    ## ----------------------------------------------------------------------
+    ## Notifiable infectous diseases:
+    ## n =  61
+    ## # A tibble: 6 x 2
+    ##   enos                                              n
+    ##   <chr>                                         <int>
+    ## 1 06 - DIARREAS AGUDAS                              1
+    ## 2 20 - SIDA                                         5
+    ## 3 47 - NEUMONIA                                    49
+    ## 4 48 - BRONQUIOLITIS < 2                            1
+    ## 5 50 - TUBERCULOSIS                                 1
+    ## 6 60 - ENFERMEDAD DE CHAGAS (AGUDO Y CONGÉNITO)     4
+
+    ## # A tibble: 61 x 6
+    ##       id  edad unieda codmuer  sexo enos             
+    ##    <int> <int>  <int> <chr>   <int> <chr>            
+    ##  1     6    20      1 J189        2 47 - NEUMONIA    
+    ##  2     2    33      1 B208        2 20 - SIDA        
+    ##  3    14    79      1 J180        2 47 - NEUMONIA    
+    ##  4     6    81      1 J189        1 47 - NEUMONIA    
+    ##  5     6    92      1 J189        1 47 - NEUMONIA    
+    ##  6    14    87      1 J189        2 47 - NEUMONIA    
+    ##  7    82    43      1 A162        1 50 - TUBERCULOSIS
+    ##  8     2   101      1 J189        2 47 - NEUMONIA    
+    ##  9     6    86      1 J189        2 47 - NEUMONIA    
+    ## 10    14    62      1 J189        1 47 - NEUMONIA    
+    ## # ... with 51 more rows

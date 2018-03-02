@@ -17,4 +17,3 @@ testthat::test_that("cie_tbl_all works",
                         deistools::test_output_cie_tbl_all
                       )
                     })
-

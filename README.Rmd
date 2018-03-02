@@ -36,8 +36,9 @@ Errores (errors) \*:
 
 \* Fuente de información: Se utilizó la tablas sugeridas por http://www.paho.org/hq/index.php?option=com_docman&task=doc_download&gid=23700&Itemid=270&lang=en
 
-La función cie_check genera el objeto de clase cie_check al ingresar los datos de edad, unidad de la edad, 
-código de muerte, sexo y las variables que consideremos de identificación de los registros.
+##Función cie_check
+
+La función cie_check es la más importante ya que genera el objeto de clase cie_check que nos permitirá utilizar las demás funciones de chequeo. Al ingresar los datos de edad, unidad de la edad, código de muerte, sexo y las variables que consideremos de identificación de los registros.
 
 ```{r}
 suppressMessages(library(tidyverse))
@@ -73,6 +74,19 @@ obj_check %>%
  cie_tbl_warnings()
  
 ```
+
+
+##Búsqueda de casos de notificación obligatoria
+
+Es útil poder determinar cuales son aquellas enfermedades que se deben notificar para evaluar la reparación con las áreas de epidemiología. Por el momento identifica aquellas causas de origen infeccioso.
+```{r}
+
+obj_check %>% 
+ cie_tbl_enos()
+ 
+```
+
+El resultado de esta función es un resumen que se imprime en la consola y la tabla con los datos individuales.
 
 
 
