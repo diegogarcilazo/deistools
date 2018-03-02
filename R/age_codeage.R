@@ -5,6 +5,8 @@
 
 rec_age2day <- function(age,code_age) {
 
+age = as.numeric(age)
+
   dplyr::case_when(
     code_age == 3 ~ age,
     code_age == 2 ~ age * 30,
@@ -24,8 +26,6 @@ rec_age2day <- function(age,code_age) {
 
 
 age_codeage <- function(age, code_age) {
-
-stopifnot(is.numeric(age))
 
 adays <- deistools::rec_age2day(age,code_age)
 

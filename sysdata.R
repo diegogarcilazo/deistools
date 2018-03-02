@@ -3,15 +3,19 @@ library(tidyverse)
 
 devtools::use_data(list_tbls, tbl_critred, tbl_cie10, tbl, cie10_check, test_df,
                    lookup_discharge, lkup_def_deis, lkup_nv_deis, lkuptbls_old,
-                   test_output_cie_check, test_output_cie_tbl_all, internal = T, overwrite = T)
+                   test_output_cie_check, test_output_cie_tbl_all, internal = T,
+                   overwrite = T)
+
+
 
 # Function that link to database download from
-# http://www.paho.org/hq/index.php?option=com_docman&task=doc_download&gid=23700&Itemid=270&lang=en
+# # http://www.paho.org/hq/index.php?option=com_docman&task=doc_download&gid=23700&Itemid=270&lang=en
 
+#--------------------------------------------------------------------------------
 update_cie10 <- function() {
   tbl <- readxl::read_excel('data/Volumen1CatalogoCIE-10.xls',
                             sheet = 'CatalogoVolumen1', range = 'B5:Y14423') %>%
-    dplyr::select(code = Clave, entity = Nombre, chapter = Capítulo,
+    dplyr::transmute(code = Clave, entity = Nombre, chapter = `Capítulo`,
                   asterisco = Asterisco,
                   trivial = Trivial,
                   useless = `Lista causas poco útiles`,
@@ -28,6 +32,7 @@ update_cie10 <- function() {
 }
 
 
+
 suspected_maternal_death <- readxl::read_excel(
   'data/Listas_Asociadas-Catalogo.xls',
   sheet = 'Lista de causas sospechosas', range = 'A3:C58') %>%
@@ -37,6 +42,42 @@ suspected_maternal_death <- readxl::read_excel(
 
 tbl_cie10 <- update_cie10()
 
+
+#Crea tabla para chequeos
+
+cie10_check <- tbl_cie10 %>%
+  transmute(
+    code,
+    entity,
+    asterisco = if_else(asterisco == 'T', T, F),
+    trivial = if_else(trivial == 'T', T, F),
+    no_cbd = if_else(no_cbd == 'T', T, F),
+    useless = as.character(useless),
+    fetal = if_else(fetal == 'T', T, F),
+    suspected_maternal_death = as.integer(suspected_maternal_death),
+    sex_limited,
+    code_age_upper = str_replace_all(age_upper, '[^A-Z]', ''),
+    code_age_lower = str_replace_all(age_lower, '[^A-Z]', ''),
+    code_age_upper = case_when(
+      code_age_upper == 'H' ~ 4,
+      code_age_upper == 'D' ~ 3,
+      code_age_upper == 'M' ~ 2,
+      code_age_upper == 'A' ~ 1,
+      T ~ NaN),
+    code_age_lower = case_when(
+      code_age_lower == 'H' ~ 4,
+      code_age_lower == 'D' ~ 3,
+      code_age_lower == 'M' ~ 2,
+      code_age_lower == 'A' ~ 1,
+      T ~ NaN),
+    age_upper = as.numeric(str_replace_all(age_upper, '[A-Z]', '')),
+    age_lower = as.numeric(str_replace_all(age_lower, '[A-Z]', '')),
+    days_age_upper = rec_age2day(age_upper, code_age_upper),
+    days_age_lower = rec_age2day(age_lower, code_age_lower)) %>%
+  left_join(suspected_maternal_death, c('suspected_maternal_death' = 'code'))
+
+
+#-------------------------------------------------------------------------------
 con <- pgr::pg_con(mdb1252)
 
 codegresp <- as_tibble(
@@ -146,37 +187,4 @@ tbl_critred <- bind_rows(
   transmute(code_redu = paste0(codmuer, code_redu), critred)
 
 
-
-#Crea tabla para chequeos
-
-cie10_check <- tbl_cie10 %>%
-  transmute(
-    code,
-    entity,
-    asterisco = if_else(asterisco == 'T', T, F),
-    trivial = if_else(trivial == 'T', T, F),
-    no_cbd = if_else(no_cbd == 'T', T, F),
-    useless = as.character(useless),
-    fetal = if_else(fetal == 'T', T, F),
-    suspected_maternal_death = as.integer(suspected_maternal_death),
-    sex_limited,
-    code_age_upper = str_replace_all(age_upper, '[^A-Z]', ''),
-    code_age_lower = str_replace_all(age_lower, '[^A-Z]', ''),
-    code_age_upper = case_when(
-      code_age_upper == 'H' ~ 4,
-      code_age_upper == 'D' ~ 3,
-      code_age_upper == 'M' ~ 2,
-      code_age_upper == 'A' ~ 1,
-      T ~ NaN),
-    code_age_lower = case_when(
-      code_age_lower == 'H' ~ 4,
-      code_age_lower == 'D' ~ 3,
-      code_age_lower == 'M' ~ 2,
-      code_age_lower == 'A' ~ 1,
-      T ~ NaN),
-    age_upper = as.numeric(str_replace_all(age_upper, '[A-Z]', '')),
-    age_lower = as.numeric(str_replace_all(age_lower, '[A-Z]', '')),
-    days_age_upper = rec_age2day(age_upper, code_age_upper),
-    days_age_lower = rec_age2day(age_lower, code_age_lower)) %>%
-  left_join(suspected_maternal_death, c('suspected_maternal_death' = 'code'))
 

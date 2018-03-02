@@ -1,0 +1,78 @@
+---
+title: "deistools"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#deistools
+deistools es un paquete que simplifica la realización de tareas habituales de las áreas de bioestadística.
+
+Instalación:
+```{r, eval=FALSE}
+install.packages(c('devtools','tidyverse','readxl','stringr'))
+devtools::install_github('diegogarcilazo/deistools')
+```
+
+###Funciones de Chequeo
+El paquete deistools tiene incorporadas funciones para validar la información de las bases de mortalidad generadas por la DEIS. El primer grupo de validaciones son aquellas utilizadas para el control y reparación de la información.
+
+Las validaciones utilizadas se las divide en 6 indicadores:
+
+Errores (errors) \*:
+
+- **Asterisco:** Son codigos válidos como códigos adicionales pero no se aceptan como causa básica de muerte(CBM).
+- **No CBD:** Código que no es válido como CBM.
+- **Limitado** a un sexo: restricción del código asociado al género.
+- **Límite de edad:** código limitado a un rango de edad.
+
+ Alertas (warnings)\*:
+
+- **Trivial:** Son condiciones poco probables como causa de muerte.
+- **SMD:** sospecha de muerte materna.
+
+
+\* Fuente de información: Se utilizó la tablas sugeridas por http://www.paho.org/hq/index.php?option=com_docman&task=doc_download&gid=23700&Itemid=270&lang=en
+
+La función cie_check genera el objeto de clase cie_check al ingresar los datos de edad, unidad de la edad, 
+código de muerte, sexo y las variables que consideremos de identificación de los registros.
+
+```{r}
+suppressMessages(library(tidyverse))
+library(deistools)
+
+obj_check <- test_df %>%
+      cie_check(edad, unieda, codmuer, sexo, juri)
+```
+
+Con la utilización de funciones adicionales se puede realizar la exploración de este chequeo.
+La función cie_summary() nos da un resumen de los errores y alertas que tiene la base.
+
+```{r}
+
+obj_check %>% 
+ cie_summary()
+ 
+```
+
+
+Para consultar los registros con errores utilizar la función cie_tbl_errors() que construye un data.frame(tibble) con los registros individuales y el error detectado.
+```{r}
+
+obj_check %>% 
+ cie_tbl_errors()
+ 
+```
+
+Para consultar los registros con alertas utilizar la función cie_tbl_warnings() que construye un data.frame(tibble) con los registros individuales y el warning detectado.
+```{r}
+
+obj_check %>% 
+ cie_tbl_warnings()
+ 
+```
+
+
+

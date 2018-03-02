@@ -4,6 +4,8 @@ cie_tbl_warnings <-  function (x, ...) UseMethod('cie_tbl_warnings', x);
 
 cie_tbl_all <- function(x,...) UseMethod('cie_tbl_all', x);
 
+cie_tbl_enos <- function(x,...) UseMethod('cie_tbl_enos', x);
+
 cie_summary <- function(x,...) UseMethod('cie_summary', x);
 
 is.cie_check <- function(x, ...) inherits(x, "cie_check");
@@ -51,7 +53,7 @@ tbl_complete_ck <- db %>%
 
   dplyr::filter(age_out | useless %in% 1:5 | no_cbd | asterisco |
              trivial | sex_out | SMD_in) %>%
-    mutate(
+    dplyr::mutate(
       i_no_cbd = if_else(no_cbd, 'Not Valid BCD', '???'),
       i_asterisco = if_else(asterisco, 'Not accepted as BCD', '???'),
       i_age_out = if_else(age_out, 'Out of age limits', '???'),
@@ -67,13 +69,20 @@ tbl_complete_ck <- db %>%
       i_warning = str_remove_all(i_warning, '\\?\\?\\?|NA'),
       i_warning = str_trim(i_warning),
       warning = ifelse(i_warning == "", NA_character_, i_warning)
-    )  %>% select(-starts_with('i_'))
+    )  %>% dplyr::select(-starts_with('i_'))
 
-  #############################################################################
+
+tbl_enos <- db %>%
+    dplyr::mutate(
+      enos = deistools::code_enos(!!code_cie10, !!age, !!code_age)
+    ) %>% filter(!enos == 'Not ENOs')
+
+#############################################################################
 #Create cie_check class
-  cie_check <- list(df = tbl_complete_ck,
+cie_check <- list(df = tbl_complete_ck,
                     n_rows = dim(db)[1],
-                    db_name = db_name)
+                    db_name = db_name,
+                    tbl_enos = tbl_enos)
 
   class(cie_check) <- 'cie_check'
 
@@ -90,7 +99,7 @@ cie_tbl_errors.cie_check <- function(x) {
     filter(age_out | no_cbd | asterisco | sex_out) %>%
     select(-useless, -trivial, -SMD_in, -warning, -sex_out,
            -age_out, -no_cbd, -asterisco, -days_age_lower,
-           -days_age_upper)}
+           -days_age_upper, -enos)}
 
 #'create table with warnings
 #'@param x object class cie_check
@@ -100,7 +109,7 @@ cie_tbl_warnings.cie_check <- function(x) {
   x$df %>%
     filter(useless %in% 1:5 | trivial | SMD_in) %>%
     select(-age_out, -trivial, -days_age_lower, -days_age_upper,
-           -no_cbd, -asterisco, -sex_out, -SMD_in, -error)}
+           -no_cbd, -asterisco, -sex_out, -SMD_in, -error, -enos)}
 
 
 #'create table with errors and warnings.
@@ -156,3 +165,22 @@ cat(
   "# SMD: Suspected Maternal Death.",
   sep = '\n')
 }
+
+#'create table with Notifiable infectous diseases.
+#'@param x object class cie_check
+#'@return tibble.
+cie_tbl_enos.cie_check <- function(x) {
+  stopifnot(is.cie_check(x))
+
+  cat(strrep('-', 70))
+  cat('\nNotifiable infectous diseases:\n')
+  cat('n = ', dim(x$tbl_enos)[1])
+  cat('\n')
+
+  x$tbl_enos %>%
+    count(enos) %>%
+    print(n = Inf)
+
+  x$tbl_enos
+
+  }

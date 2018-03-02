@@ -269,3 +269,16 @@ test_df %>%
   cie_tbl_warnings() %>%
   View()
 
+
+rec_age2day(as.character(deistools::test_df$edad), deistools::test_df$unieda)
+
+
+#check_enos
+
+library(tidyverse)
+a <-  deistools::test_df %>%
+  cie_check(edad, unieda, codmuer, sexo, juri)
+
+
+a$tbl_enos %>%
+  filter(!enos == 'Not ENOs')
