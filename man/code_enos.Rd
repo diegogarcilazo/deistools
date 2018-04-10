@@ -4,7 +4,7 @@
 \alias{code_enos}
 \title{From cie10 to Enos. At the moment infectous diseases.}
 \usage{
-code_enos(x, age, age_code)
+code_enos(x, age, age_code, sex)
 }
 \arguments{
 \item{x}{death code.}
@@ -12,6 +12,8 @@ code_enos(x, age, age_code)
 \item{age}{age.}
 
 \item{age_code}{age code. Assume code_age levels 1 = years, 2 = months, 3 = days, 4 = hours, 5 = minutes.}
+
+\item{sex}{sex. Assume sex levels 1 = male, 2 = female.}
 }
 \description{
 From cie10 to Enos. At the moment infectous diseases.

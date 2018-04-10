@@ -2,6 +2,7 @@
 #' @param x death code.
 #' @param age age.
 #' @param age_code age code. Assume code_age levels 1 = years, 2 = months, 3 = days, 4 = hours, 5 = minutes.
+#' @param sex sex. Assume sex levels 1 = male, 2 = female.
 
 code_enos <- function(x, age, age_code, sex){
 
