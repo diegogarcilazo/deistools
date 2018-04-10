@@ -74,7 +74,7 @@ tbl_complete_ck <- db %>%
 
 tbl_enos <- db %>%
     dplyr::mutate(
-      enos = deistools::code_enos(!!code_cie10, !!age, !!code_age)
+      enos = deistools::code_enos(!!code_cie10, !!age, !!code_age, !!sex)
     ) %>% filter(!enos == 'Not ENOs') %>%
   dplyr::select(!!!id, !!code_cie10, entity, !!age, !!code_age, !!sex, enos)
 
