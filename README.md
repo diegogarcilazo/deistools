@@ -122,37 +122,26 @@ Búsqueda de casos de notificación obligatoria
 
 Es útil poder determinar cuales son aquellas enfermedades que se deben notificar para evaluar la reparación con las áreas de epidemiología. Por el momento identifica aquellas causas de origen infeccioso.
 
+Se utiliza la función **code\_enos**. Ejemplo:
+
 ``` r
-obj_check %>% 
- cie_tbl_enos()
+library(tidyverse)
+test_df2 <- mutate(test_df, 
+       enos = code_enos(x = codmuer, age = edad, age_code = unieda, sex = sexo)
+       )
+
+count(test_df2, enos)
 ```
 
-    ## ----------------------------------------------------------------------
-    ## Notifiable infectous diseases:
-    ## n =  61
-    ## # A tibble: 6 x 2
-    ##   enos                                              n
-    ##   <chr>                                         <int>
-    ## 1 06 - DIARREAS AGUDAS                              1
-    ## 2 20 - SIDA                                         5
-    ## 3 47 - NEUMONIA                                    49
-    ## 4 48 - BRONQUIOLITIS < 2                            1
-    ## 5 50 - TUBERCULOSIS                                 1
-    ## 6 60 - ENFERMEDAD DE CHAGAS (AGUDO Y CONGÉNITO)     4
-
-    ## # A tibble: 61 x 6
-    ##       id  edad unieda codmuer  sexo enos             
-    ##    <int> <int>  <int> <chr>   <int> <chr>            
-    ##  1     6    20      1 J189        2 47 - NEUMONIA    
-    ##  2     2    33      1 B208        2 20 - SIDA        
-    ##  3    14    79      1 J180        2 47 - NEUMONIA    
-    ##  4     6    81      1 J189        1 47 - NEUMONIA    
-    ##  5     6    92      1 J189        1 47 - NEUMONIA    
-    ##  6    14    87      1 J189        2 47 - NEUMONIA    
-    ##  7    82    43      1 A162        1 50 - TUBERCULOSIS
-    ##  8     2   101      1 J189        2 47 - NEUMONIA    
-    ##  9     6    86      1 J189        2 47 - NEUMONIA    
-    ## 10    14    62      1 J189        1 47 - NEUMONIA    
-    ## # ... with 51 more rows
+    ## # A tibble: 7 x 2
+    ##   enos                                             n
+    ##   <chr>                                        <int>
+    ## 1 47 - NEUMONIA                                   49
+    ## 2 BRONQUIOLITIS < 2                                1
+    ## 3 Chagas agudo vectorial                           4
+    ## 4 Meningitis bacteriana sin especificar agente     1
+    ## 5 Not ENOs                                       939
+    ## 6 SIDA                                             5
+    ## 7 TUBERCULOSIS                                     1
 
 El resultado de esta función es un resumen que se imprime en la consola y la tabla con los datos individuales.

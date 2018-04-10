@@ -79,9 +79,15 @@ obj_check %>%
 ##Búsqueda de casos de notificación obligatoria
 
 Es útil poder determinar cuales son aquellas enfermedades que se deben notificar para evaluar la reparación con las áreas de epidemiología. Por el momento identifica aquellas causas de origen infeccioso.
+
+Se utiliza la función **code_enos**. Ejemplo:
 ```{r}
 library(tidyverse)
-mutate(deistools::test_df, enos = code_enos(codmuer, edad, unieda, sexo))
+test_df2 <- mutate(test_df, 
+       enos = code_enos(x = codmuer, age = edad, age_code = unieda, sex = sexo)
+       )
+
+count(test_df2, enos)
  
 ```
 
