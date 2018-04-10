@@ -12,7 +12,6 @@ devtools::document()
 devtools::use_test("testing")
 devtools::use_testthat()
 
-
 con <- pgr::pg_con(mdb1252)
 
 def_inf_i08 <- tbl(con, dbplyr::in_schema('mi','def_inf_i08'))
@@ -263,7 +262,6 @@ tbl(con, dbplyr::in_schema('mortalidad', 'usudef16')) %>%
   print(n = 300)
 
 
-
 test_df %>%
   cie_check(edad, unieda, codmuer, sexo, juri) %>%
   cie_tbl_warnings() %>%
@@ -279,6 +277,30 @@ library(tidyverse)
 a <-  deistools::test_df %>%
   cie_check(edad, unieda, codmuer, sexo, juri)
 
-
 a$tbl_enos %>%
   filter(!enos == 'Not ENOs')
+
+
+con <- pgr::pg_con(mdb1252)
+
+pgr::pg_show(con, 'mortalidad')
+
+usudef16 <- tbl(con, dbplyr::in_schema('mortalidad','usudef16')) %>% collect()
+
+
+library(deistools)
+
+a <- cie_check(usudef16, edad, uniedad, codmuer, sexo, juri)
+
+cie_summary(a)
+
+
+juris <- as.character(sort(unique(usudef16$juri)))
+
+walk(juris, ~ {cat('\n\nJuris: ',.x); cie_check(filter(usudef16, juri == .x),
+                 edad, uniedad, codmuer, sexo, depoc) %>% cie_summary} )
+
+
+
+deistools::lkup_def_deis$JURI %>% print(n = 100)
+

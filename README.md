@@ -154,3 +154,5 @@ obj_check %>%
     ##  9     6    86      1 J189        2 47 - NEUMONIA    
     ## 10    14    62      1 J189        1 47 - NEUMONIA    
     ## # ... with 51 more rows
+
+El resultado de esta función es un resumen que se imprime en la consola y la tabla con los datos individuales.

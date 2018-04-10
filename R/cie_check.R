@@ -21,7 +21,7 @@ is.cie_check <- function(x, ...) inherits(x, "cie_check");
 
 cie_check <- function(db, age, code_age, code_cie10, sex, ...){
 
-#Capture expressions.########################################################
+#Capture arguments ########################################################
 
   id <- dplyr::quos(...)
   age <- dplyr::enquo(age)
@@ -75,7 +75,8 @@ tbl_complete_ck <- db %>%
 tbl_enos <- db %>%
     dplyr::mutate(
       enos = deistools::code_enos(!!code_cie10, !!age, !!code_age)
-    ) %>% filter(!enos == 'Not ENOs')
+    ) %>% filter(!enos == 'Not ENOs') %>%
+  dplyr::select(!!!id, !!code_cie10, entity, !!age, !!code_age, !!sex, enos)
 
 #############################################################################
 #Create cie_check class

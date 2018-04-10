@@ -81,8 +81,9 @@ obj_check %>%
 Es útil poder determinar cuales son aquellas enfermedades que se deben notificar para evaluar la reparación con las áreas de epidemiología. Por el momento identifica aquellas causas de origen infeccioso.
 ```{r}
 
-obj_check %>% 
- cie_tbl_enos()
+dplyr::mutate(test_df,
+    enos = code_enos(x = codmuer, age = edad, age_code = unieda, sex = sexo)
+  )
  
 ```
 

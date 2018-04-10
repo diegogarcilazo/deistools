@@ -183,6 +183,3 @@ tbl_critred <- bind_rows(
       critred),
   data_frame(codmuer = 'R99x', code_redu = 12152L, critred = 'MAL DEFINIDAS')) %>%
   transmute(code_redu = paste0(codmuer, code_redu), critred)
-
-
-
