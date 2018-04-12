@@ -7,7 +7,7 @@
 code_enos <- function(x, age, age_code, sex){
 
   dplyr::case_when(
-    ((x >= 'A010' & x <= 'A042') & (x >= 'A044' & x <= 'A09X'))  ~ 'DIARREAS AGUDAS', #ok
+    ((x >= 'A010' & x <= 'A042') | (x >= 'A044' & x <= 'A09X')) ~ 'DIARREAS AGUDAS', #ok
     stringr::str_detect(x, 'A01') ~ '07 - FIEBRE TIFOIDEA Y PARATIFOIDEA',#ok
     #(x >= 'A000' & x <= 'A09X') ~ '10 - ENFERMEDADES DE TRANSIMISION ALIMENTARIA - (ETA)',
     #(x >= 'A540' & x <= 'A542') ~ '18 - URETRITIS GONOCOCCICA (GONORREA  BLENORRAGIA)',
