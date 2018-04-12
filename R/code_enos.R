@@ -95,6 +95,7 @@ code_enos <- function(x, age, age_code, sex){
     stringr::str_detect(x, 'A23') ~ '68 - BRUCELOSIS',#ok
     stringr::str_detect(x, 'B334') ~ '69 - HANTAVIRUS - SINDROME PULMONAR',#ok
     stringr::str_detect(x, 'A27') ~ '70 - LEPTOSPIROSIS',#ok
-    stringr::str_detect(x, 'A960') ~ '71 - FIEBRE HEMORRÁGICA ARGENTINA',#ok
+    stringr::str_detect(x, 'A960') ~ '71 - FIEBRE HEMORRÁGICA ARGENTINA',#ok,
+    is.na(x) ~ NA_character_,
     T ~ 'Not ENOs')
 }
