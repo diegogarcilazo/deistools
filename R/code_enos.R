@@ -66,7 +66,7 @@ code_enos <- function(x, age, age_code, sex){
     stringr::str_detect(x, 'G020') ~ 'Meningitis por otros virus',#ok
     (x >= 'G002' & x <= 'G008') ~ 'Meningitis bacterianas por otros agentes',#ok
     stringr::str_detect(x, 'G03') ~ 'Meningitis sin especificar etiología',#ok
-    stringr::str_detect(x, 'B49') ~ 'Meningitis micóticas', #ok
+    stringr::str_detect(x, 'B375') | stringr::str_detect(x, 'B384') | stringr::str_detect(x, 'B451') ~ 'Meningitis micóticas', #ok
     (x >= 'G009' & x <= 'G01X') ~ 'Meningitis bacteriana sin especificar agente', #ok
     (x >= 'A750' & x <= 'A799') ~ 'Ricketsiosis', #ok
     stringr::str_detect(x, 'A81') ~ 'Encefalopatía espongiforme', #ok
