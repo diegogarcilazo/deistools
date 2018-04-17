@@ -97,7 +97,7 @@ code_enos <- function(x, age, age_code, sex){
     stringr::str_detect(x, 'A960') ~ 'Fiebre Hemorrágica Argentina',#ok
     stringr::str_detect(x, 'B03') ~ 'Viruela', #ok
     is.na(x) ~ NA_character_,
-    T ~ 'Not ENOs')
+    T ~ 'No ENOs')
 }
 
 
