@@ -41,9 +41,13 @@ atotales <- atotales %>%
   )
 
 atotales %>%
-  count(cie10,enos) %>%
-  arrange(desc(n)) %>%
-  write_tsv('/home/diego/Descargas/AtencionesTotales2018.tsv')
+  select(-cie10, -sexo, -uniedad) %>%
+write.table('/home/diego/Descargas/AtencionesTotales2018_enos.tsv', sep = '\t', na = '', row.names = F)
+
+
+atotales %>%
+  count(DIAGNOSTICO,enos) %>%
+  arrange(desc(n)) %>% print(n = 1000) %>% View
 
 
 
