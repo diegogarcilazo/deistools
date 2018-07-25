@@ -20,34 +20,19 @@ testthat::test_that("cie_tbl_all works",
 
 
 
-#import package
-library(tidyverse)
-library(deistools)
 
-#read excel
-atotales <- readxl::read_excel('/home/diego/Descargas/AtencionesTotales2018.xlsx')
+mort16 <- as_tibble(pgr::pg_sql(con, "SELECT edad,uniedad,sexo::INT,codmuer,juri FROM mortalidad.usudef16"))
 
-#data wrangling
-atotales <- atotales %>%
-  mutate(
-    uniedad = if_else(EDAD == 0, 2, 1),
-    sexo = case_when(SEXO == 'F' ~ 2, SEXO == 'M' ~ 1, T ~ NaN),
-    diagnostico = case_when(DIAGNOSTICO == 'No cargado' ~ NA_character_, T ~ DIAGNOSTICO)
-  ) %>%
-  separate(diagnostico, c('cie10', 'diag'), sep = ' - ') %>%
-  mutate(
-    cie10 = str_remove(cie10, '\\.'),
-    enos = code_enos(cie10, EDAD, uniedad, sexo)
-  )
+a <- cie_check(mort16, edad, uniedad, codmuer, sexo, juri)
 
-atotales %>%
-  select(-cie10, -sexo, -uniedad) %>%
-write.table('/home/diego/Descargas/AtencionesTotales2018_enos.tsv', sep = '\t', na = '', row.names = F)
+cie_summary(a)
 
 
-atotales %>%
-  count(DIAGNOSTICO,enos) %>%
-  arrange(desc(n)) %>% print(n = 1000) %>% View
+count(a$df, warning)
+
+cie_tbl_warnings(a) %>%
+  group_by(juri) %>%
+  summarise(n = sum(str_detect(warning, 'Useless code')))
 
 
 

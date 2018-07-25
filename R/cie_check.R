@@ -1,3 +1,5 @@
+require(tidyverse)
+
 cie_tbl_errors <-  function (x, ...) UseMethod('cie_tbl_errors', x);
 
 cie_tbl_warnings <-  function (x, ...) UseMethod('cie_tbl_warnings', x);
@@ -87,6 +89,7 @@ cie_check <- list(df = tbl_complete_ck,
 
   class(cie_check) <- 'cie_check'
 
+  cie_summary(cie_check)
   invisible(cie_check)
 }
 
@@ -154,17 +157,23 @@ cat("\nWarnings = ",
     suppressMessages(pull(tally(x$df %>%
                                   filter(useless %in% 1:5 | trivial | SMD_in)))))
 cat("\n\n")
-print(summary_1)
+cat("Errors:\n")
+print(summary_1[1:4,])
+cat("\n")
+cat("Warnings:\n")
+print(summary_1[5:7,])
 cat(strrep('-', 70))
 cat('\n')
 cat(
-  "# Asterisk: are valid as additional codes but are not accepted as\n\t    a basic cause of death.",
-  "# Trivial: conditions unlikely to cause death.",
-  "# No CBD: It is not valid as a Basic Cause of Death.",
-  "# Limited to one sex: Identifies restriction codes associated with\n\t     gender.",
-  "# Age limit: Out of Age limit accepted.",
-  "# SMD: Suspected Maternal Death.",
-  sep = '\n')
+  "Indicators:\n",
+  "1. Age limit: Out of Age limit accepted.\n",
+  "2. Asterisk: are valid as additional codes but are not accepted as a basic cause of death.\n",
+  "3. Limited to one sex: Identifies restriction codes associated with gender.\n",
+  "4. No CBD: It is not valid as a Basic Cause of Death.\n",
+  "5. SMD: Suspected Maternal Death.\n",
+  "6. Trivial: conditions unlikely to cause death.\n",
+  "7. Useless Codes."
+  )
 }
 
 #'create table with Notifiable infectous diseases.
