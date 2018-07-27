@@ -19,20 +19,8 @@ testthat::test_that("cie_tbl_all works",
                     })
 
 
-
+con = pgr::pg_con(mdb1252, driver = PostgreSQL)
 
 mort16 <- as_tibble(pgr::pg_sql(con, "SELECT edad,uniedad,sexo::INT,codmuer,juri FROM mortalidad.usudef16"))
 
 a <- cie_check(mort16, edad, uniedad, codmuer, sexo, juri)
-
-cie_summary(a)
-
-
-count(a$df, warning)
-
-cie_tbl_warnings(a) %>%
-  group_by(juri) %>%
-  summarise(n = sum(str_detect(warning, 'Useless code')))
-
-
-

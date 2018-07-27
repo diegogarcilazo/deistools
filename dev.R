@@ -304,3 +304,6 @@ walk(juris, ~ {cat('\n\nJuris: ',.x); cie_check(filter(usudef16, juri == .x),
 
 deistools::lkup_def_deis$JURI %>% print(n = 100)
 
+library(tidyverse)
+
+
