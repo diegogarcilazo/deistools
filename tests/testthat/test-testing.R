@@ -24,3 +24,4 @@ con = pgr::pg_con(mdb1252, driver = PostgreSQL)
 mort16 <- as_tibble(pgr::pg_sql(con, "SELECT edad,uniedad,sexo::INT,codmuer,juri FROM mortalidad.usudef16"))
 
 a <- cie_check(mort16, edad, uniedad, codmuer, sexo, juri)
+

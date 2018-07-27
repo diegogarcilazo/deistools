@@ -175,7 +175,7 @@ cat("\n")
 cat("Useless report:\n")
 cat(strrep('-', 70))
 cat("\n")
-tbl_useless_ <- deistools::tbl_useless(a)
+tbl_useless_ <- deistools::tbl_useless(x)
 print(tbl_useless_$tbl_useless1)
 cat("\n")
 cat(
