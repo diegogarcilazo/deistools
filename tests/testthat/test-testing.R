@@ -19,6 +19,9 @@ testthat::test_that("cie_tbl_all works",
                     })
 
 
+library(tidyverse)
+library(deistools)
+
 con = pgr::pg_con(mdb1252, driver = PostgreSQL)
 
 mort16 <- as_tibble(pgr::pg_sql(con, "SELECT edad,uniedad,sexo::INT,codmuer,juri FROM mortalidad.usudef16"))

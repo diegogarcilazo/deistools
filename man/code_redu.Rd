@@ -10,7 +10,7 @@ code_redu(year, grupedad, codmuer)
 \arguments{
 \item{year}{Year}
 
-\item{grupedad}{Group age.}
+\item{grupedad}{Group age with modes M1(0-6 days), M2(7-28 days) and M3(29d-11m).}
 
 \item{codmuer}{death code.}
 }

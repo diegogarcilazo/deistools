@@ -242,5 +242,3 @@ tbl_useless <- function(x){
   return(list(tbl_useless1 = t3, tbl_useless2 = t7))
 
 }
-
-

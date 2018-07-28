@@ -5,18 +5,22 @@
 
 rec_age2day <- function(age,code_age) {
 
-age = as.numeric(age)
+  age = as.numeric(age)
 
-  dplyr::case_when(
-    code_age == 3 ~ age,
-    code_age == 2 ~ age * 30,
-    code_age == 1 ~ age * 365.25,
-    code_age == 4 ~ age / 24 / 30,
-    code_age == 5 ~ age / 60 / 24 / 30,
-    code_age == 9 ~ NaN,
-    TRUE ~ NaN)
+  if (any(age==0)) {warning('There are age equals 0 will be updated to 1')}
 
-}
+  age = if_else(age == 0, 1, age)
+
+    dplyr::case_when(
+      code_age == 3 ~ age,
+      code_age == 2 ~ age * 30,
+      code_age == 1 ~ age * 365.25,
+      code_age == 4 ~ age / 24 / 30,
+      code_age == 5 ~ age / 60 / 24 / 30,
+      code_age == 9 ~ NaN,
+      TRUE ~ NaN)
+
+  }
 
 
 #' recode age group from two variables age and code_age.
@@ -40,9 +44,4 @@ labels = c('M1','M2','M3','01','02','03','04','05 - 09',
 					 '55 - 59','60 - 64','65 - 69','70 - 74',
 					 '75 - 79','80 - 84','85 y +')
 
-cut(adays, breaks, labels, ordered_result = T)
-
-}
-
-
-
+cut(adays, breaks, labels, ordered_result = T)}
