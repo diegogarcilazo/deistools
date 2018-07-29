@@ -308,3 +308,91 @@ deistools::lkup_def_deis$JURI %>% print(n = 100)
 library(tidyverse)
 
 
+
+library(tidyverse)
+
+con <- pgr::pg_con(mdb1252, driver = PostgreSQL)
+
+df <- as_tibble(
+  pgr::pg_sql(con, 'SELECT ano,codmuer,edad,uniedad::INT FROM mortalidad.i01_v24'))
+
+
+
+reducible <- function(df, age, codeage, year, codmuer, ...){
+
+  age = dplyr::enquo(age)
+  codeage = dplyr::enquo(codeage)
+  year = dplyr::enquo(year)
+  codmuer = dplyr::enquo(codmuer)
+  id = dplyr::quos(...)
+
+  df %<>%
+    dplyr::mutate(
+      gedad = deistools::age_codeage(!!age, !!codeage)
+    ) %>%
+    dplyr::filter(stringr::str_detect(gedad, 'M')) %>%
+    dplyr::mutate(
+      redu = deistools::code_redu(!!year, gedad, !!codmuer),
+      gedad2 = dplyr::case_when(
+        gedad %in% c('M1','M2') ~ 'Neonatal',
+        gedad %in% c('M3') ~ "Posneonatal")
+    ) %>%
+    dplyr::left_join(deistools::tbl_critred2, c('redu' = 'code_redu')) %>%
+    dplyr::select(-redu) %>%
+    dplyr::left_join(deistools::tbl_critred_labs) %>%
+    dplyr::select(-code)
+
+  return(df)
+}
+
+
+reducible(df, edad, uniedad, ano, codmuer)
+
+
+df %>% replace_na(list(key1 = 'No Match')) %>%
+xtabs(~key1 + gedad2 + ano, exclude = NULL, na.action = na.pass, .)
+
+
+
+
+"Reporte Criterios de Reducibilidad
+-----------------------------------
+" %>% glue::glue(.envir = list())
+
+
+redu1 <- tibble(
+  lab = sort(unique(deistools::tbl_critred$critred)[-2],decreasing = T),
+  code = 1:13)
+
+
+tbl_critred_labs <- mutate(redu1,
+                           key1 = if_else(str_detect(lab,'^REDUCIBLE |OTRAS REDUCIBLES'),
+                                          'Reducible',
+                                          str_to_title(lab)),
+                           key2 = case_when(
+                             str_detect(lab, 'EN EL RECIEN NACIDO') ~ 'En el Recién Nacido',
+                             str_detect(lab, 'EN EL PERIODO PERINATAL') ~ 'En el Período Perinatal',
+                             str_detect(lab, 'EN EL PARTO') ~ 'En el Parto',
+                             str_detect(lab, 'EN EL EMBARAZO') ~ 'En el Embarazo',
+                             str_detect(lab, 'OTRAS REDUCIBLES|REDUCIBLE POR TRATAMIENTO|REDUCIBLE POR PREVENCION Y TRATAMIENTO|REDUCIBLE POR PREVENCION') ~ 'Otras Reducibles'),
+                           key3 = case_when(
+                             str_detect(lab, 'POR TRATAMIENTO QUIRURGICO') ~ 'Por Tratamiento Quirúrgico',
+                             str_detect(lab, 'POR TRATAMIENTO CLINICO Y QUIRURGICO') ~ 'Por Tratamiento Clínico y Quirúrgico',
+                             str_detect(lab, 'POR TRATAMIENTO CLINICO') ~ 'Por Tratamiento Clínico')
+
+) %>% select(-1)
+
+
+tbl_critred2 <- left_join(deistools::tbl_critred, redu1,c('critred'= 'lab')) %>%
+  select(1,3)
+
+
+
+
+tibble(
+  key2 = 1:7,
+  lab2 = drop_na(tbl_critred_labs,key2) %>% pull(3))
+
+
+
+
