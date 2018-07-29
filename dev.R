@@ -14,7 +14,7 @@ devtools::use_test("testing")
 devtools::use_testthat()
 
 con <- pgr::pg_con(mdb1252)
-
+remove.packages('deistools')
 def_inf_i08 <- tbl(con, dbplyr::in_schema('mi','def_inf_i08'))
 
 lookup_discharge$tippart <-
@@ -314,50 +314,19 @@ library(tidyverse)
 con <- pgr::pg_con(mdb1252, driver = PostgreSQL)
 
 df <- as_tibble(
-  pgr::pg_sql(con, 'SELECT ano,codmuer,edad,uniedad::INT FROM mortalidad.i01_v24'))
-
-
-
-reducible <- function(df, age, codeage, year, codmuer, ...){
-
-  age = dplyr::enquo(age)
-  codeage = dplyr::enquo(codeage)
-  year = dplyr::enquo(year)
-  codmuer = dplyr::enquo(codmuer)
-  id = dplyr::quos(...)
-
-  df %<>%
-    dplyr::mutate(
-      gedad = deistools::age_codeage(!!age, !!codeage)
-    ) %>%
-    dplyr::filter(stringr::str_detect(gedad, 'M')) %>%
-    dplyr::mutate(
-      redu = deistools::code_redu(!!year, gedad, !!codmuer),
-      gedad2 = dplyr::case_when(
-        gedad %in% c('M1','M2') ~ 'Neonatal',
-        gedad %in% c('M3') ~ "Posneonatal")
-    ) %>%
-    dplyr::left_join(deistools::tbl_critred2, c('redu' = 'code_redu')) %>%
-    dplyr::select(-redu) %>%
-    dplyr::left_join(deistools::tbl_critred_labs) %>%
-    dplyr::select(-code)
-
-  return(df)
-}
-
-
-reducible(df, edad, uniedad, ano, codmuer)
-
-
-df %>% replace_na(list(key1 = 'No Match')) %>%
-xtabs(~key1 + gedad2 + ano, exclude = NULL, na.action = na.pass, .)
+  pgr::pg_sql(con, 'SELECT ano,codmuer,edad,uniedad::INT,provres FROM mortalidad.i01_v24'))
 
 
 
 
-"Reporte Criterios de Reducibilidad
------------------------------------
-" %>% glue::glue(.envir = list())
+
+l <- reductible(df, edad, uniedad, ano, codmuer, provres)
+
+filter(l,provres == 30, ano%in%2010:2016) %>%
+  count(gedad2,key1,ano) %>%
+  ggplot(aes(ano, n, fill = key1)) + geom_bar(stat = 'identity') + facet_wrap(~gedad2)
+
+map(2010:2016, ~{print(.x);redu_summary(filter(l, ano == .x))})
 
 
 redu1 <- tibble(
