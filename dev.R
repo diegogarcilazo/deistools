@@ -2,8 +2,10 @@ library(pgr)
 library(tidyverse)
 library(deistools)
 
+devtools::test()
 
 devtools::install_github('diegogarcilazo/deistools')
+devtools::install_github('')
 
 devtools::use_package("tidyverse")
 devtools::use_package("readxl")
@@ -317,10 +319,7 @@ df <- as_tibble(
   pgr::pg_sql(con, 'SELECT ano,codmuer,edad,uniedad::INT,provres FROM mortalidad.i01_v24'))
 
 
-
-
-
-l <- reductible(df, edad, uniedad, ano, codmuer, provres)
+l <- deistools::reductible(df, edad, uniedad, ano, codmuer, provres)
 
 filter(l,provres == 30, ano%in%2010:2016) %>%
   count(gedad2,key1,ano) %>%
@@ -361,7 +360,3 @@ tbl_critred2 <- left_join(deistools::tbl_critred, redu1,c('critred'= 'lab')) %>%
 tibble(
   key2 = 1:7,
   lab2 = drop_na(tbl_critred_labs,key2) %>% pull(3))
-
-
-
-

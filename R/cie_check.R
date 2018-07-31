@@ -46,7 +46,7 @@ tbl_complete_ck <- db %>%
   dplyr::select(!!!id, !!code_cie10, entity, useless, no_cbd, asterisco,
                 trivial, !!age, !!code_age, age_out, days_age_lower,
                 days_age_upper, !!sex, sex_out, SMD_in) %>% #Select vars.
-  dplyr::filter(age_out | useless %in% 1:4 | no_cbd | asterisco | trivial | sex_out | SMD_in) %>% #Filter by boolean are true.
+  dplyr::filter(age_out | useless %in% 1:5 | no_cbd | asterisco | trivial | sex_out | SMD_in) %>% #Filter by boolean are true.
   dplyr::mutate(
     i_no_cbd = dplyr::if_else(no_cbd, 'Not Valid BCD', '???'),
     i_asterisco = dplyr::if_else(asterisco, 'Not accepted as BCD', '???'),
@@ -56,7 +56,7 @@ tbl_complete_ck <- db %>%
     i_error = stringr::str_remove_all(i_error, '\\?\\?\\?|NA'),
     i_error = stringr::str_trim(i_error),
     error = ifelse(i_error == "", NA_character_, i_error),
-    i_useless = ifelse(useless %in% 1:4, 'Useless code', '???'),
+    i_useless = ifelse(useless %in% 1:5, 'Useless code', '???'),
     i_trivial = ifelse(trivial, 'Unlikely to cause death', '???'),
     i_SMD_in = ifelse(SMD_in, 'Suspected Maternal Death', '???'),
     i_warning = paste(i_useless, i_trivial, i_SMD_in, sep = ' '),
@@ -73,12 +73,37 @@ tbl_enos <- db %>%
     ) %>% dplyr::filter(!enos == 'Not ENOs') %>%
   dplyr::select(!!!id, !!code_cie10, !!age, !!code_age, !!sex, enos)
 
+
+## Function to make tbl_useless
+  t0 <- tbl_complete_ck %>% dplyr::mutate(
+    gedad = deistools::age_codeage(!!age, !!code_age)) %>%
+    dplyr::filter(str_detect(warning, 'Useless'))
+
+  t1 <- addmargins(xtabs(~useless,t0),1)
+  names(t1)[6] = 'All'
+  t2 <- round(t1 * 100 / dim(db)[1] , 1)
+
+  t3 <- matrix(c(t1,t2), c(6,2), dimnames = list(names(t1),  c('Useless', '%All(Death)')))
+
+  t4 <- tbl_enos %>% dplyr::mutate(
+    gedad = deistools::age_codeage(!!age, !!code_age))
+
+  t5 <- addmargins(xtabs(~gedad,t0),1)
+
+  t6 <- addmargins(xtabs(~gedad,t4),1)
+
+  t7 <- transform(cbind(t5,t6), a = round(t5 * 100 / t6,1))
+
+  colnames(t7) = c('Useless', 'Deaths', '%')
+
 #############################################################################
 #Create cie_check class
 cie_check <- list(df = tbl_complete_ck,
                     n_rows = dim(db)[1],
                     db_name = db_name,
-                    tbl_enos = tbl_enos)
+                    tbl_enos = tbl_enos,
+                    tbl_useless1 = t3,
+                    tbl_useless2 = t7)
 
   class(cie_check) <- 'cie_check'
 
@@ -127,7 +152,7 @@ summary_1 <- x$df %>%
       `Asterisk code` = sum(asterisco, na.rm = T),
       Trivial = sum(trivial, na.rm = T),
       `No CBD` = sum(no_cbd, na.rm = T),
-      Useless = sum(useless %in% 1:4, na.rm = T),
+      Useless = sum(useless %in% 1:5, na.rm = T),
       `Limited to one sex` = sum(sex_out, na.rm = T),
       SMD = sum(SMD_in, na.rm = T)
     ) %>%
@@ -150,7 +175,7 @@ cat(crayon::red("\nErrors = ",
                                   filter(age_out | no_cbd | asterisco | sex_out))))))
 cat(crayon::yellow("\nWarnings = ",
     suppressMessages(pull(tally(x$df %>%
-                                  filter(useless %in% 1:4 | trivial | SMD_in))))))
+                                  filter(useless %in% 1:5 | trivial | SMD_in))))))
 cat("\n\n")
 cat(crayon::red("Errors:\n"))
 print(summary_1[1:4,])
@@ -175,8 +200,7 @@ cat("\n")
 cat("Useless report:\n")
 cat(strrep('-', 70))
 cat("\n")
-tbl_useless_ <- deistools::tbl_useless(x)
-print(tbl_useless_$tbl_useless1)
+print(x$tbl_useless1)
 cat("\n")
 cat(
 "Useless codes explanation:",
@@ -187,12 +211,13 @@ cat(
     leading to death.",
 "4. Unspecified causes within a larger cause grouping.",
 "   *Author: S. Makela, et al. 2010, Algorithms for enhancing public health utility
-             of national causes-of-death data",
+             of national causes-of-death data
+5. Ill-defined conditions.",
 sep = "\n"
 )
 cat("\n\n")
 cat("Useless tables by group age:\n\n")
-print(tbl_useless_$tbl_useless2)
+print(x$tbl_useless2)
 
 cat("\n\n")
 cat(strrep('-', 70))
@@ -200,10 +225,7 @@ cat('\nNotifiable infectous diseases:\n')
 cat(strrep('-', 70))
 cat('\nn = ', dim(x$tbl_enos)[1],"\n")
 cat("ENOs = ", sum(x$tbl_enos$enos != 'No ENOs'))
-
-
-
-
+cat("\n")
 }
 
 
@@ -215,30 +237,3 @@ cie_tbl_enos.cie_check <- function(x) {
   stopifnot(is.cie_check(x))
   x$tbl_enos}
 
-
-tbl_useless <- function(x){
-  stopifnot(is.cie_check(x))
-  t0 <- x$df %>% dplyr::mutate(
-    gedad = deistools::age_codeage(edad, uniedad)) %>%
-    dplyr::filter(str_detect(warning, 'Useless'))
-
-  t1 <- addmargins(xtabs(~useless,t0),1)
-  names(t1)[5] = 'All'
-  t2 <- round(t1 * 100 / x$n_rows , 1)
-
-  t3 <- matrix(c(t1,t2), c(5,2), dimnames = list(names(t1),  c('Useless', '%All(Death)')))
-
-  t4 <- x$tbl_enos %>% dplyr::mutate(
-    gedad = deistools::age_codeage(edad, uniedad))
-
-  t5 <- addmargins(xtabs(~gedad,t0),1)
-
-  t6 <- addmargins(xtabs(~gedad,t4),1)
-
-  t7 <- transform(cbind(t5,t6), a = round(t5 * 100 / t6,1))
-
-  colnames(t7) = c('Useless', 'Deaths', '%')
-
-  return(list(tbl_useless1 = t3, tbl_useless2 = t7))
-
-}

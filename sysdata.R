@@ -3,7 +3,7 @@ library(tidyverse)
 
 load('R/sysdata.rda')
 devtools::use_data(list_tbls, tbl_critred, tbl_critred2, tbl_critred_labs,tbl_cie10, tbl, cie10_check, test_df,
-                   lookup_discharge, lkup_def_deis, lkup_nv_deis,
+                   lookup_discharge, lkup_def_deis, lkup_nv_deis, age_codeage_value, smp, d,
                    test_output_cie_check, test_output_cie_tbl_all, internal = T,
                    overwrite = T)
 

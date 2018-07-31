@@ -7,9 +7,9 @@
 age_codeage(age, code_age)
 }
 \arguments{
-\item{age}{num: numeric age.}
+\item{age}{dbl: numeric age.}
 
-\item{code_age}{num: numeric code_age}
+\item{code_age}{dbl: numeric code_age}
 }
 \value{
 ordered factor with age groups.

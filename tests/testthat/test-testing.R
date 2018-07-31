@@ -1,30 +1,29 @@
-context("testing")
+context("age_codeage")
 
-testthat::test_that("cie_check works",
-          {
-  testthat::expect_identical(
-    deistools::test_df %>%
-      cie_check(edad, unieda, codmuer, sexo, id),
-    deistools::test_output_cie_check
-  )
-          })
+test_that(
+  "rec_age2day expect value 730.5",
+  {expect_equal(rec_age2day(2, 1),730.5)}
+)
 
-testthat::test_that("cie_tbl_all works",
-                    {
-                      testthat::expect_identical(
-                        deistools::test_output_cie_check %>%
-                          cie_tbl_all(),
-                        deistools::test_output_cie_tbl_all
-                      )
-                    })
+test_that("rec_age2day expect warning",
+{expect_warning(rec_age2day(0,1), 'There are age equals 0 will be coerced to 1')}
+)
+
+test_that(
+  "age_codeage is a factor",
+  {expect_is(age_codeage(2,1), "factor")}
+)
 
 
-library(tidyverse)
-library(deistools)
 
-con = pgr::pg_con(mdb1252, driver = PostgreSQL)
+context("code_redu")
 
-mort16 <- as_tibble(pgr::pg_sql(con, "SELECT edad,uniedad,sexo::INT,codmuer,juri FROM mortalidad.usudef16"))
+test_that(
+  "code_redu expect value 'J99910111'",
+  {expect_equal(code_redu(2010, 'M1', 'J999'), "J99910111")}
+)
 
-a <- cie_check(mort16, edad, uniedad, codmuer, sexo, juri)
+
+
+
 

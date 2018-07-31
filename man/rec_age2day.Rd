@@ -7,7 +7,7 @@
 rec_age2day(age, code_age)
 }
 \arguments{
-\item{age}{age. Integer.}
+\item{age}{num. Age. age will be coerced to dbl.}
 
 \item{code_age}{code age Assume code_age levels 1 = years, 2 = months,
 3 = days, 4 = hours, 5 = minutes.}
