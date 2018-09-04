@@ -4,14 +4,14 @@ library(deistools)
 
 devtools::test()
 
+devtools::document()
+
 devtools::install_github('diegogarcilazo/deistools')
-devtools::install_github('')
 
 devtools::use_package("tidyverse")
-devtools::use_package("readxl")
-devtools::use_package("stringr")
+devtools::use_package("R6")
+devtools::use_package("skimr")
 
-devtools::document()
 devtools::use_test("testing")
 devtools::use_testthat()
 
@@ -309,10 +309,6 @@ deistools::lkup_def_deis$JURI %>% print(n = 100)
 
 library(tidyverse)
 
-
-
-library(tidyverse)
-
 con <- pgr::pg_con(mdb1252, driver = PostgreSQL)
 
 df <- as_tibble(
@@ -355,8 +351,83 @@ tbl_critred2 <- left_join(deistools::tbl_critred, redu1,c('critred'= 'lab')) %>%
   select(1,3)
 
 
-
-
 tibble(
   key2 = 1:7,
   lab2 = drop_na(tbl_critred_labs,key2) %>% pull(3))
+
+
+library(tidyverse)
+library(deistools)
+
+con <- pgr::pg_con(mdb1252, driver = PostgreSQL)
+
+base <- pgr::pg_sql(con, "SELECT edad, uniedad::INT, codmuer, sexo, juri, ano FROM mortalidad.def0116")
+
+glimpse(base)
+
+chequeo <- cie_check(base, edad, uniedad, codmuer, sexo, juri, ano)
+
+
+a <- cie_check(filter(base, ano == 2001), edad, uniedad, codmuer, sexo, juri, ano)
+
+
+a <- map(2001:2016, ~cie_check(filter(base, ano == .x), edad, uniedad, codmuer, sexo, lococ,juri, ano)) %>%
+  set_names(2001:2016)
+
+
+lista <- map('2001':'2016', ~as.data.frame(a[[as.character(.x)]]$tbl_useless2) %>% rownames_to_column('GEDAD')) %>% set_names(2001:2016)
+
+writexl::write_xlsx(lista, "/home/diego/Escritorio/useless2.xls")
+
+
+rownames_to_column(lista$`2001`, 'gedad')
+
+
+
+
+check <- function(db, age, code_age, code_cie10, sex, ...){
+
+  id <- dplyr::quos(...)
+  age <- dplyr::enquo(age)
+  code_age <- dplyr::enquo(code_age)
+  code_cie10 <- substitute(code_cie10)
+  sex <- dplyr::enquo(sex)
+  by <- `names<-`('code', deparse(code_cie10))
+  db_name <- deparse(substitute(db))
+
+  lista <- list(
+    name = list(quo_name(sex), quo_name(age), quo_name(code_age), quo_name(code_cie10)),
+    var = list(eval_tidy(sex, db),
+               eval_tidy(age, db),
+               eval_tidy(code_age, db),
+               eval_tidy(code_cie10, db)),
+    cats = list(
+                c(1,2),
+                c(1:120),
+                c(1:5),
+                deistools::tbl_cie10 %>%
+                  filter(str_length(code) == 4) %>%
+                  pull(code)),
+    class = list("integer",
+                 "integer",
+                 "integer",
+                 "character")
+  )
+
+  pwalk(lista, ~ check_cat(..1, ..2, ..3,..4))
+
+}
+
+check(deistools::test_df, edad, unieda, codmuer, sexo, id)
+
+check_cat <- function(name, var, cats, class)
+{
+  cats_diff <- unique(var) %>% setdiff(cats)
+  if(!identical(cats_diff, vector(class, 0)))
+  {warning(
+    glue::glue("In {name} unknown cats {paste(cats_diff, collapse = ',')}"),
+    call. = F)}
+}
+
+
+

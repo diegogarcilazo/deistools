@@ -36,62 +36,75 @@ Errores (errors) \*:
 
 \* Fuente de información: Se utilizó la tablas sugeridas por http://www.paho.org/hq/index.php?option=com_docman&task=doc_download&gid=23700&Itemid=270&lang=en
 
-##Función cie_check
+##Crear instancia
 
-La función cie_check es la más importante ya que genera el objeto de clase cie_check que nos permitirá utilizar las demás funciones de chequeo. Al ingresar los datos de edad, unidad de la edad, código de muerte, sexo y las variables que consideremos de identificación de los registros.
+La `checkCie10$new(args)` crea el objeto de clase checkCie10 que nos permitirá utilizar los métodos de chequeo. Se debe iniciar con los datos de edad, unidad de la edad, código de muerte, sexo y las variables que consideremos de identificación de los registros.
 
 ```{r}
 suppressMessages(library(tidyverse))
 library(deistools)
 
-obj_check <- test_df %>%
-      cie_check(edad, unieda, codmuer, sexo, id)
+chequeo <- checkCie10$new(deistools::test_df, edad, unieda, codmuer, sexo, id)
+
 ```
 
-Con la utilización de funciones adicionales se puede realizar la exploración de este chequeo.
-La función cie_summary() nos da un resumen de los errores y alertas que tiene la base.
+
+## Métodos para generar listas.
+
+**list_problems**: Lista los certificados con problemas (errores y/o warnings)
+
 
 ```{r}
 
-obj_check %>% 
- cie_summary()
+chequeo$list_problems()
  
 ```
 
+**list_enos**: Lista los certificados con códigos de enfermedades de notificación obligatoria.
 
-Para consultar los registros con errores utilizar la función cie_tbl_errors() que construye un data.frame(tibble) con los registros individuales y el error detectado.
+
 ```{r}
 
-obj_check %>% 
- cie_tbl_errors()
+chequeo$list_enos()
  
 ```
 
-Para consultar los registros con alertas utilizar la función cie_tbl_warnings() que construye un data.frame(tibble) con los registros individuales y el warning detectado.
+**list_unknown**: Lista los certificados con problemas (errores y/o warnings)
+
+
 ```{r}
 
-obj_check %>% 
- cie_tbl_warnings()
+chequeo$list_unknown()
  
 ```
 
+**list_all**: Lista todos los certificados.
 
-##Búsqueda de casos de notificación obligatoria
 
-Es útil poder determinar cuales son aquellas enfermedades que se deben notificar para evaluar la reparación con las áreas de epidemiología. Por el momento identifica aquellas causas de origen infeccioso.
-
-Se utiliza la función **code_enos**. Ejemplo:
 ```{r}
-library(tidyverse)
-test_df2 <- mutate(test_df, 
-       enos = code_enos(x = codmuer, age = edad, age_code = unieda, sex = sexo)
-       )
 
-count(test_df2, enos)
+chequeo$list_all()
  
 ```
 
-El resultado de esta función es un resumen que se imprime en la consola y la tabla con los datos individuales.
+## Métodos para generar gráficos.
 
+**plot_missing**: crear un gráfico de raster rellenando con color aquellos registros con datos y dejando en blanco los NA.
+
+
+```{r}
+
+chequeo$plot_missing()
+ 
+```
+
+**plot_useless**: crea un gráfico d barras con el porcentaje de códigos poco útiles por grupos de edad.
+
+
+```{r}
+
+chequeo$plot_useless()
+ 
+```
 
 

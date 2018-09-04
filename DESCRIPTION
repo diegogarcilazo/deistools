@@ -9,7 +9,7 @@ License: GNU
 Encoding: UTF-8
 LazyData: true
 Imports: tidyverse,
-    readxl,
-    stringr
+    R6,
+    skimr
 RoxygenNote: 6.1.0
 Suggests: testthat

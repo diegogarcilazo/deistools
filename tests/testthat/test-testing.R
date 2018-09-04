@@ -22,8 +22,3 @@ test_that(
   "code_redu expect value 'J99910111'",
   {expect_equal(code_redu(2010, 'M1', 'J999'), "J99910111")}
 )
-
-
-
-
-

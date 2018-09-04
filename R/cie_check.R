@@ -66,7 +66,6 @@ tbl_complete_ck <- db %>%
     )  %>%
   dplyr::select(-dplyr::starts_with('i_'))
 
-
 tbl_enos <- db %>%
     dplyr::mutate(
       enos = deistools::code_enos(!!code_cie10, !!age, !!code_age, !!sex)
