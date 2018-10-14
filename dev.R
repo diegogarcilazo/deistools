@@ -385,49 +385,143 @@ rownames_to_column(lista$`2001`, 'gedad')
 
 
 
-check <- function(db, age, code_age, code_cie10, sex, ...){
+check <- function(db, age, code_age, code_cie10, sex, loc_oc, ...){
 
   id <- dplyr::quos(...)
   age <- dplyr::enquo(age)
   code_age <- dplyr::enquo(code_age)
   code_cie10 <- substitute(code_cie10)
   sex <- dplyr::enquo(sex)
+  loc_oc <- dplyr::enquo(loc_oc)
   by <- `names<-`('code', deparse(code_cie10))
   db_name <- deparse(substitute(db))
 
   lista <- list(
-    name = list(quo_name(sex), quo_name(age), quo_name(code_age), quo_name(code_cie10)),
-    var = list(eval_tidy(sex, db),
-               eval_tidy(age, db),
-               eval_tidy(code_age, db),
-               eval_tidy(code_cie10, db)),
+    name = list(quo_name(sex), quo_name(age),
+                quo_name(code_age), quo_name(code_cie10),
+                quo_name(loc_oc)),
+    var = list(rlang::eval_tidy(sex, db),
+               rlang::eval_tidy(age, db),
+               rlang::eval_tidy(code_age, db),
+               rlang::eval_tidy(code_cie10, db),
+               rlang::eval_tidy(loc_oc, db)),
     cats = list(
                 c(1,2),
                 c(1:120),
                 c(1:5),
                 deistools::tbl_cie10 %>%
                   filter(str_length(code) == 4) %>%
-                  pull(code)),
-    class = list("integer",
-                 "integer",
-                 "integer",
-                 "character")
+                  pull(code),
+                c(1,2,3,4,9)),
+    class = list(is.integer,
+                 is.integer,
+                 is.integer,
+                 is.character,
+                 is.integer)
   )
 
-  pwalk(lista, ~ check_cat(..1, ..2, ..3,..4))
-
-}
-
-check(deistools::test_df, edad, unieda, codmuer, sexo, id)
-
-check_cat <- function(name, var, cats, class)
-{
-  cats_diff <- unique(var) %>% setdiff(cats)
-  if(!identical(cats_diff, vector(class, 0)))
-  {warning(
-    glue::glue("In {name} unknown cats {paste(cats_diff, collapse = ',')}"),
-    call. = F)}
+  pwalk(lista, ~ unknown_cats(..2, ..3))
 }
 
 
+check(deistools::test_df, edad, unieda, codmuer, sexo, ocloc)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' Create a vector with unknown categories detected.
+#' @param var: variable to evaluate.
+#' @param cats: vector with known categories.
+#' @return vector.
+
+unknown_cats_vec <- function(var, cats){
+  vec <- setdiff(unique(var), cats)
+  return(vec)
+}
+
+
+testthat::test_that(
+  "unknown_cats_vec function",
+  testthat::expect_equal(
+    unknown_cats_vec(deistools::test_df$sexo, c(1,2)),
+    c(9,3)))
+
+
+#' Evaluate if there are unknown categories.
+#' @param var: variable to evaluate.
+#' @param cats: vector with known categories.
+#' @return logical vector length 1.
+
+are_unknown_cats <- function(var, cats){
+  anyNA(match(unique(var), cats))
+}
+
+testthat::test_that(
+  "are_unknown_cats function",
+  testthat::expect_equal(
+    are_unknown_cats(deistools::test_df$sexo, c(1,2)),
+    T))
+
+
+print_unknown_cats <- function(name, vec){
+  str <- glue::glue_collapse(vec, sep = ", ", width = 50,
+                             last = " and ")
+  glue::glue("In var {name}. Unknown categories: {str}")
+
+}
+
+
+unknown_cats <- function(name, var, cats){
+
+  if(are_unknown_cats(var, cats)){
+    warning(
+      print_unknown_cats(name, unknown_cats_vec(var, cats)),
+      call. = F)
+  }
+}
+
+
+pwalk(list(names, vars, cats), unknown_cats)
+
+vec_check_class <- invoke_map_lgl(class, map(vars, list))
+
+any(vec_check_class)
+
+vec_check_class[!vec_check_class] %>% names
+
+invoke_map_lgl(class, map(vars, list))
+
+map2_lgl(deistools::test_df %>%
+           select(sexo, edad, unieda, codmuer),
+         cats,
+         are_unknown_cats)
+
+
+map_lgl(deistools::test_df %>%
+          select(sexo, edad, unieda, codmuer),
+        anyNA)
+
+
+
+
+test_df <- deistools::test_df %>% mutate(ocloc = rep(c(1,2,3,4,9),200))
+
+
+checkR6_instance <- checkCie10$new(test_df,
+                                   edad, unieda, codmuer, sexo, ocloc, id)
+
+checkR6_instance$report_completeness()
 
