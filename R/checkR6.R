@@ -172,10 +172,10 @@ checkCie10 <- R6::R6Class(
       ggplot2::theme_classic() +
       ggplot2::scale_fill_manual(
         values = c("TRUE" = "white", "FALSE" = "#5878F7")) +
-      ggplot2::theme(axis.title.x = element_blank(),
-            axis.text.x = element_blank(),
-            axis.ticks = element_blank(),
-            axis.line = element_blank(),
+      ggplot2::theme(axis.title.x = ggplot2::element_blank(),
+            axis.text.x = ggplot2::element_blank(),
+            axis.ticks = ggplot2::element_blank(),
+            axis.line = ggplot2::element_blank(),
             legend.position = "none")
 
   },
