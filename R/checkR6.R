@@ -1,5 +1,3 @@
-require(tidyverse)
-
 explain <- list(
 
   help_useless =
@@ -82,7 +80,7 @@ checkCie10 <- R6::R6Class(
       private$age <- dplyr::enquo(age)
       private$code_age <- dplyr::enquo(code_age)
       private$code_cie10 <- substitute(code_cie10)
-      private$code_cie10q <- enquo(code_cie10)
+      private$code_cie10q <- dplyr::enquo(code_cie10)
       private$sex <- dplyr::enquo(sex)
       private$code_ocloc <- dplyr::enquo(code_ocloc)
       private$by <- `names<-`('code', deparse(private$code_cie10))
@@ -118,12 +116,12 @@ checkCie10 <- R6::R6Class(
     list_unknown = function(){
 
       result <- private$tbls %>%
-        filter(
+        dplyr::filter(
           !(!!private$sex %in% 1:2) |
           !(!!private$code_age %in% 1:5) |
           !(!!private$age %in% 1:120),
           !is.na(entity)) %>%
-        select(!!!private$id, !!private$age, !!private$code_age,
+        dplyr::select(!!!private$id, !!private$age, !!private$code_age,
                !!private$code_cie10, !!private$sex)
       return(result)
     },
@@ -138,7 +136,7 @@ checkCie10 <- R6::R6Class(
                useless, trivial, SMD_in, age_out,
                no_cbd, asterisco, sex_out) %>%
         dplyr::mutate_at(dplyr::vars(trivial, SMD_in, age_out,
-                       no_cbd, asterisco, sex_out), if_else, 1, 0) %>%
+                       no_cbd, asterisco, sex_out), dplyr::if_else, 1, 0) %>%
         tidyr::replace_na(list(age_out = 0, sex_out = 0))
       return(result)
 
@@ -164,15 +162,17 @@ checkCie10 <- R6::R6Class(
 
   plot_missing = function(){
     private$db %>%
-      select(!!private$age, !!private$code_age,
+      dplyr::select(!!private$age, !!private$code_age,
              !!private$code_cie10, !!private$sex) %>%
-      mutate(id = row_number()) %>%
-      mutate_at(1:4, is.na) %>%
-      gather(var, miss, 1:4) %>%
-      ggplot(aes(id, var, fill = miss)) + geom_raster() +
-      theme_classic() +
-      scale_fill_manual(values = c("TRUE" = "white", "FALSE" = "#5878F7")) +
-      theme(axis.title.x = element_blank(),
+      dplyr::mutate(id = row_number()) %>%
+      dplyr::mutate_at(1:4, is.na) %>%
+      tidyr::gather(var, miss, 1:4) %>%
+      ggplot2::ggplot(aes(id, var, fill = miss)) +
+      ggplot2::geom_raster() +
+      ggplot2::theme_classic() +
+      ggplot2::scale_fill_manual(
+        values = c("TRUE" = "white", "FALSE" = "#5878F7")) +
+      ggplot2::theme(axis.title.x = element_blank(),
             axis.text.x = element_blank(),
             axis.ticks = element_blank(),
             axis.line = element_blank(),
@@ -182,27 +182,28 @@ checkCie10 <- R6::R6Class(
 
   plot_useless = function(){
     private$tbls %>%
-      count(age = deistools::age_factor(code_age_check),
-            useless = if_else(useless == 0, "No","Sí"),
+      dplyr::count(age = deistools::age_factor(code_age_check),
+            useless = dplyr::if_else(useless == 0, "No","Sí"),
             age = case_when(
-              str_detect(age, "M1|M2") ~ "Neo",
+              stringr::str_detect(age, "M1|M2") ~ "Neo",
               age == "M3" ~ "PosNeo",
               (age >= "01" & age <= "04") ~ "01 - 04",
               T ~ as.character(age)),
-            age = fct_relevel(age, "Neo", "PosNeo")) %>%
-      group_by(age) %>%
-      mutate(prop = n/sum(n)) %>%
-      filter(useless == "Sí") %>%
-      ggplot(aes(age, prop)) +
-      geom_col(fill = "firebrick") +
-      geom_text(aes(label = glue::glue("{scales::percent(prop, 1)}\n({n})")),
+            age = forcats::fct_relevel(age, "Neo", "PosNeo")) %>%
+      dplyr::group_by(age) %>%
+      dplyr::mutate(prop = n/sum(n)) %>%
+      dplyr::filter(useless == "Sí") %>%
+      ggplot2::ggplot(aes(age, prop)) +
+      ggplot2::geom_col(fill = "firebrick") +
+      ggplot2::geom_text(aes(
+        label = glue::glue("{scales::percent(prop, 1)}\n({n})")),
                 size = 3, nudge_y = .03) +
-      theme_classic() +
-      scale_y_continuous(labels = scales::percent, limits = c(0,1)) +
-      theme(axis.title = element_blank(),
-            axis.ticks = element_blank(),
-            axis.line = element_blank(),
-            axis.text.x = element_text(angle = 45))
+      ggplot2::theme_classic() +
+      ggplot2::scale_y_continuous(labels = scales::percent, limits = c(0,1)) +
+      ggplot2::theme(axis.title = ggplot2::element_blank(),
+            axis.ticks = ggplot2::element_blank(),
+            axis.line = ggplot2::element_blank(),
+            axis.text.x = ggplot2::element_text(angle = 45))
 
 
 
@@ -213,12 +214,12 @@ report_enos = function(){
 
   report <- list(
     report_01 = self$list_enos() %>%
-      count(
+      dplyr::count(
         enos = str_to_title(enos)) %>%
-      mutate(
+      dplyr::mutate(
         pct = round(n * 100 / sum(n), 1)
       ) %>%
-      arrange(desc(n)) %>%
+      dplyr::arrange(desc(n)) %>%
       glue::glue_data('{seq_along(enos)}: {enos} [{n}, {pct}%]'))
 
      glue::glue(
@@ -234,14 +235,14 @@ Report Notifiable Infectous Diseases: [n, %]
   report_useless = function(){
     report_data <- list(
       report_1 = private$tbls %>%
-        count(useless = if_else(useless == 0, 'No','Sí')) %>%
+        dplyr::count(useless = dplyr::if_else(useless == 0, 'No','Sí')) %>%
         glue::glue_data("{useless[2]}: {n[2]} ({round(n[2] * 100 / sum(n),1)}%)
                     {useless[1]}: {n[1]}
                     Total: {sum(n)}"),
       report_2 = private$tbls %>%
-        filter(useless > 0) %>%
-        count(useless) %>%
-        mutate(prop = n / sum(n)) %>%
+        dplyr::filter(useless > 0) %>%
+        dplyr::count(useless) %>%
+        dplyr::mutate(prop = n / sum(n)) %>%
         glue::glue_data("
                     code {useless}:\\
                     {format(n, width = str_length(max(n)) + 1, justify = 'right')} \\
@@ -249,16 +250,16 @@ Report Notifiable Infectous Diseases: [n, %]
                     "),
 
       report_3 = private$tbls %>%
-        count(age = deistools::age_factor(code_age_check),
-              #useless = if_else(useless == 0, "No","Sí"),
+        dplyr::count(age = deistools::age_factor(code_age_check),
+              #useless = dplyr::if_else(useless == 0, "No","Sí"),
               useless,
               age = case_when(
-                str_detect(age, "M1|M2") ~ "Neo",
+                stringr::str_detect(age, "M1|M2") ~ "Neo",
                 age == "M3" ~ "PosNeo",
                 (age >= "01" & age <= "04") ~ "01 - 04",
                 T ~ as.character(age)),
-              age = fct_relevel(age, "Neo", "PosNeo")) %>%
-        spread(useless, n, fill = 0) %>%
+              age = forcats::fct_relevel(age, "Neo", "PosNeo")) %>%
+        tidyr::spread(useless, n, fill = 0) %>%
         glue::glue_data("
   {format(age, width = 9, justify = 'right')}\\
   {format(`0`, width = 9, justify = 'centre')}\\
@@ -270,9 +271,9 @@ Report Notifiable Infectous Diseases: [n, %]
   {format(round((`1`+`2`+`3`+`4`+`5`) * 100 / (`0`+`1`+`2`+`3`+`4`+`5`),1), width = 6, justify = 'centre')}"),
 
       report_4 = private$tbls %>%
-        count(ocloc = !!private$code_ocloc, useless) %>%
-        spread(useless, n, fill = 0) %>%
-        mutate(prop = round(rowSums(.[,3:7]) * 100 /rowSums(.[,2:7]), 1)) %>%
+        dplyr::count(ocloc = !!private$code_ocloc, useless) %>%
+        tidyr::spread(useless, n, fill = 0) %>%
+        dplyr::mutate(prop = round(rowSums(.[,3:7]) * 100 /rowSums(.[,2:7]), 1)) %>%
         glue::glue_data("
                     {format(ocloc, width = 5)}:\\
                     {format(`0`, width = 9)}\\
@@ -340,7 +341,7 @@ names = list(
 
 
 vars = function() {private$tbls %>%
-  select(!!private$sex,
+    dplyr::select(!!private$sex,
          !!private$age,
          !!private$code_age,
          !!private$code_cie10)},

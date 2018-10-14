@@ -13,6 +13,8 @@ devtools::use_package("R6")
 devtools::use_package("glue")
 devtools::use_package("crayon")
 devtools::use_package("stringr")
+devtools::use_package("forcats")
+devtools::use_package("magrittr")
 
 devtools::use_test("testing")
 devtools::use_testthat()

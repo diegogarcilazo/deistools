@@ -1,3 +1,4 @@
 exportPattern("^[[:alpha:]]+")
 importFrom("stats", "addmargins", "filter", "xtabs")
 importFrom("utils", "head")
+importFrom("magrittr","%>%")
