@@ -92,7 +92,7 @@ checkCie10 <- R6::R6Class(
           code_age_check = deistools::rec_age2day(
             as.numeric(!!private$age), !!private$code_age) #Age codeAge to days
         ) %>%
-        dplyr::left_join(deistools:::cie10_check, private$by) %>% #Join db with cie10_check table.
+        dplyr::left_join(deistools::cie10_check, private$by) %>% #Join db with cie10_check table.
         dplyr::mutate(
           age_out = !((code_age_check > days_age_lower) & (code_age_check < days_age_upper)), #Boolean result from days check
           sex_out = (sex_limited != !!private$sex), #Boolean result check sex limited.
@@ -319,7 +319,7 @@ cats = list(
   "sex" = c(1,2),
   "age" = c(1:120),
   "code_age" = c(1:5),
-  "code_cie10" = deistools:::cie10_check %>%
+  "code_cie10" = deistools::cie10_check %>%
     filter(str_length(code) == 4) %>%
     pull(code)),
 

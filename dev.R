@@ -4,7 +4,6 @@ library(deistools)
 
 devtools::test()
 
-
 devtools::document()
 
 devtools::install_github('diegogarcilazo/deistools')
@@ -496,7 +495,7 @@ map_lgl(deistools::test_df %>%
 test_df <- deistools::test_df %>% mutate(ocloc = rep(c(1,2,3,4,9),200))
 
 
-checkR6_instance <- checkCie10$new(test_df,
+checkR6_instance <- checkCie10$new(deistools::test_df,
                                    edad, unieda, codmuer, sexo, ocloc, id)
 
 checkR6_instance$plot_useless()
