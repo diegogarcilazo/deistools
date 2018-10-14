@@ -4,7 +4,7 @@ context("checkR6")
 testthat::test_that(
   "Create instance problem",
   testthat::expect_warning(
-    checkR6_instance <- checkCie10$new(deistools::test_df,
+    checkR6_instance <- deistools::checkCie10$new(deistools::test_df,
                                        edad, unieda, codmuer, sexo, ocloc,id)
   )
 
