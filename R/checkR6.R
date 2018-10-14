@@ -319,7 +319,7 @@ cats = list(
   "sex" = c(1,2),
   "age" = c(1:120),
   "code_age" = c(1:5),
-  "code_cie10" = deistools::tbl_cie10 %>%
+  "code_cie10" = deistools:::cie10_check %>%
     filter(str_length(code) == 4) %>%
     pull(code)),
 

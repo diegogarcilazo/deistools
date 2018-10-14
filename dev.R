@@ -4,13 +4,13 @@ library(deistools)
 
 devtools::test()
 
+
 devtools::document()
 
 devtools::install_github('diegogarcilazo/deistools')
 
 devtools::use_package("tidyverse")
 devtools::use_package("R6")
-devtools::use_package("skimr")
 
 devtools::use_test("testing")
 devtools::use_testthat()
@@ -442,39 +442,15 @@ check(deistools::test_df, edad, unieda, codmuer, sexo, ocloc)
 
 
 
-#' Create a vector with unknown categories detected.
-#' @param var: variable to evaluate.
-#' @param cats: vector with known categories.
-#' @return vector.
-
 unknown_cats_vec <- function(var, cats){
   vec <- setdiff(unique(var), cats)
   return(vec)
 }
 
 
-testthat::test_that(
-  "unknown_cats_vec function",
-  testthat::expect_equal(
-    unknown_cats_vec(deistools::test_df$sexo, c(1,2)),
-    c(9,3)))
-
-
-#' Evaluate if there are unknown categories.
-#' @param var: variable to evaluate.
-#' @param cats: vector with known categories.
-#' @return logical vector length 1.
-
 are_unknown_cats <- function(var, cats){
   anyNA(match(unique(var), cats))
 }
-
-testthat::test_that(
-  "are_unknown_cats function",
-  testthat::expect_equal(
-    are_unknown_cats(deistools::test_df$sexo, c(1,2)),
-    T))
-
 
 print_unknown_cats <- function(name, vec){
   str <- glue::glue_collapse(vec, sep = ", ", width = 50,
@@ -523,5 +499,5 @@ test_df <- deistools::test_df %>% mutate(ocloc = rep(c(1,2,3,4,9),200))
 checkR6_instance <- checkCie10$new(test_df,
                                    edad, unieda, codmuer, sexo, ocloc, id)
 
-checkR6_instance$report_completeness()
+checkR6_instance$plot_useless()
 
