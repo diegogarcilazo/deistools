@@ -8,8 +8,10 @@ Description: Implementations for ICD and management of Biostatistic datasets dev
 License: GNU
 Encoding: UTF-8
 LazyData: true
-Imports: tidyverse,
-    R6,
-    skimr
+Imports: R6,
+    dplyr,
+    glue,
+    crayon,
+    stringr
 RoxygenNote: 6.1.0
 Suggests: testthat

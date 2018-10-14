@@ -3,13 +3,16 @@ library(tidyverse)
 library(deistools)
 
 devtools::test()
-
+devtools::check()
 devtools::document()
 
 devtools::install_github('diegogarcilazo/deistools')
 
-devtools::use_package("tidyverse")
+devtools::use_package("dplyr")
 devtools::use_package("R6")
+devtools::use_package("glue")
+devtools::use_package("crayon")
+devtools::use_package("stringr")
 
 devtools::use_test("testing")
 devtools::use_testthat()
@@ -498,5 +501,9 @@ test_df <- deistools::test_df %>% mutate(ocloc = rep(c(1,2,3,4,9),200))
 checkR6_instance <- checkCie10$new(deistools::test_df,
                                    edad, unieda, codmuer, sexo, ocloc, id)
 
-checkR6_instance$plot_useless()
+checkR6_instance$report_completeness()
+
+
+
+
 

@@ -315,13 +315,15 @@ Local   | Code 0 | Code 1 | Code 2 | Code 3 | Code 4 | Code 5 |  %  |
 
   },
 
-cats = list(
+cats = function(){
+  list(
     "sex" = c(1,2),
     "age" = c(1:120),
     "code_age" = c(1:5),
-    "code_cie10" = deistools:::cie10_check %>%
-      filter(str_length(code) == 4) %>%
-      pull(code)),
+    "code_cie10" = deistools::cie10_check %>%
+      dplyr::filter(str_length(code) == 4) %>%
+      dplyr::pull(code))
+  },
 
 
 class = list("sex" = is.integer,
@@ -344,7 +346,9 @@ vars = function() {private$tbls %>%
          !!private$code_cie10)},
 
 report_completeness = function(){
-  pmap_df(list(self$names, self$vars(), self$cats), deistools::completeness_tbl)
+  purrr::pmap_df(
+    list(self$names, self$vars(), self$cats()),
+    deistools::completeness_tbl)
 }
 
 ),
