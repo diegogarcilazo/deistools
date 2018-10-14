@@ -5,12 +5,12 @@
 
 completeness_tbl <- function(name, var, cats){
 
-  tibble(
+  tibble::tibble(
     Name = name,
     Correct = sum(var%in%cats),
     NAs = sum(is.na(var)),
     n = length(var)
-  ) %>% transmute(
+  ) %>% dplyr::transmute(
     Name,
     Correct,
     Unknown = n - (Correct + NAs),

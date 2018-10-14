@@ -164,10 +164,10 @@ checkCie10 <- R6::R6Class(
     private$db %>%
       dplyr::select(!!private$age, !!private$code_age,
              !!private$code_cie10, !!private$sex) %>%
-      dplyr::mutate(id = row_number()) %>%
+      dplyr::mutate(id = dplyr::row_number()) %>%
       dplyr::mutate_at(1:4, is.na) %>%
       tidyr::gather(var, miss, 1:4) %>%
-      ggplot2::ggplot(aes(id, var, fill = miss)) +
+      ggplot2::ggplot(ggplot2::aes(id, var, fill = miss)) +
       ggplot2::geom_raster() +
       ggplot2::theme_classic() +
       ggplot2::scale_fill_manual(
@@ -184,7 +184,7 @@ checkCie10 <- R6::R6Class(
     private$tbls %>%
       dplyr::count(age = deistools::age_factor(code_age_check),
             useless = dplyr::if_else(useless == 0, "No","Sí"),
-            age = case_when(
+            age = dplyr::case_when(
               stringr::str_detect(age, "M1|M2") ~ "Neo",
               age == "M3" ~ "PosNeo",
               (age >= "01" & age <= "04") ~ "01 - 04",
@@ -193,9 +193,9 @@ checkCie10 <- R6::R6Class(
       dplyr::group_by(age) %>%
       dplyr::mutate(prop = n/sum(n)) %>%
       dplyr::filter(useless == "Sí") %>%
-      ggplot2::ggplot(aes(age, prop)) +
+      ggplot2::ggplot(ggplot2::aes(age, prop)) +
       ggplot2::geom_col(fill = "firebrick") +
-      ggplot2::geom_text(aes(
+      ggplot2::geom_text(ggplot2::aes(
         label = glue::glue("{scales::percent(prop, 1)}\n({n})")),
                 size = 3, nudge_y = .03) +
       ggplot2::theme_classic() +
@@ -215,7 +215,7 @@ report_enos = function(){
   report <- list(
     report_01 = self$list_enos() %>%
       dplyr::count(
-        enos = str_to_title(enos)) %>%
+        enos = stringr::str_to_title(enos)) %>%
       dplyr::mutate(
         pct = round(n * 100 / sum(n), 1)
       ) %>%
@@ -245,15 +245,15 @@ Report Notifiable Infectous Diseases: [n, %]
         dplyr::mutate(prop = n / sum(n)) %>%
         glue::glue_data("
                     code {useless}:\\
-                    {format(n, width = str_length(max(n)) + 1, justify = 'right')} \\
-                    {format(round(prop*100,1), width = str_length(max(n)) + 1, justify = 'right')}%
+                    {format(n, width = stringr::str_length(max(n)) + 1, justify = 'right')} \\
+                    {format(round(prop*100,1), width = stringr::str_length(max(n)) + 1, justify = 'right')}%
                     "),
 
       report_3 = private$tbls %>%
         dplyr::count(age = deistools::age_factor(code_age_check),
               #useless = dplyr::if_else(useless == 0, "No","Sí"),
               useless,
-              age = case_when(
+              age = dplyr::case_when(
                 stringr::str_detect(age, "M1|M2") ~ "Neo",
                 age == "M3" ~ "PosNeo",
                 (age >= "01" & age <= "04") ~ "01 - 04",
@@ -322,7 +322,7 @@ cats = function(){
     "age" = c(1:120),
     "code_age" = c(1:5),
     "code_cie10" = deistools::cie10_check %>%
-      dplyr::filter(str_length(code) == 4) %>%
+      dplyr::filter(stringr::str_length(code) == 4) %>%
       dplyr::pull(code))
   },
 

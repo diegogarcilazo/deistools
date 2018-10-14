@@ -11,7 +11,7 @@ rec_age2day <- function(age,code_age) {
   if (any(age==0)) {warning('There are age equals 0 will be coerced to 1')}
 
   #coerce 0 values to 1.
-  age = if_else(age == 0, 1, age)
+  age = dplyr::if_else(age == 0, 1, age)
 
   #To days
   adays <- dplyr::case_when(

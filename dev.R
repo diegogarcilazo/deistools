@@ -15,6 +15,7 @@ devtools::use_package("crayon")
 devtools::use_package("stringr")
 devtools::use_package("forcats")
 devtools::use_package("magrittr")
+devtools::use_package("tibble")
 
 devtools::use_test("testing")
 devtools::use_testthat()
@@ -499,6 +500,8 @@ map_lgl(deistools::test_df %>%
 
 test_df <- deistools::test_df %>% mutate(ocloc = rep(c(1,2,3,4,9),200))
 
+
+library(deistools)
 
 checkR6_instance <- checkCie10$new(deistools::test_df,
                                    edad, unieda, codmuer, sexo, ocloc, id)
