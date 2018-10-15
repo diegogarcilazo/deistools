@@ -1,10 +1,9 @@
 library(tidyverse)
 
-
 load('R/sysdata.rda')
 devtools::use_data(list_tbls, tbl_critred, tbl_critred2, tbl_critred_labs,tbl_cie10, tbl, cie10_check, test_df,
                    lookup_discharge, lkup_def_deis, lkup_nv_deis, age_codeage_value, smp, d,
-                   test_output_cie_check, test_output_cie_tbl_all, internal = T,
+                   test_output_cie_check, test_output_cie_tbl_all, cie10_cats, internal = T,
                    overwrite = T)
 
 # Function that link to database download from
@@ -184,3 +183,11 @@ tbl_critred <- bind_rows(
       critred),
   data_frame(codmuer = 'R99x', code_redu = 12152L, critred = 'MAL DEFINIDAS')) %>%
   transmute(code_redu = paste0(codmuer, code_redu), critred)
+
+
+cie10_cats <- deistools::cie10_check %>%
+  dplyr::filter(stringr::str_length(code) == 4) %>%
+  dplyr::pull(code)
+
+
+
