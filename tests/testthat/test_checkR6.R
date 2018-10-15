@@ -1,6 +1,9 @@
 context("checkR6")
 
 
+checkR6_instance <- deistools::checkCie10$new(deistools::test_df,
+                                              edad, unieda, codmuer, sexo, ocloc,id)
+
 testthat::test_that(
   "Create instance problem",
   testthat::expect_warning(
