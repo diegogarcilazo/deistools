@@ -74,6 +74,7 @@ Help methods
 checkCie10 <- R6::R6Class(
   "checkCie10",
   public = list(
+    cats = NULL,
     initialize = function(db, age, code_age, code_cie10, sex, code_ocloc, ...) {
       private$db <- db
       private$id <- dplyr::quos(...)
@@ -85,6 +86,7 @@ checkCie10 <- R6::R6Class(
       private$code_ocloc <- dplyr::enquo(code_ocloc)
       private$by <- `names<-`('code', deparse(private$code_cie10))
       private$db_name <- deparse(substitute(db))
+
       private$tbls <- private$db %>%
         dplyr::mutate(
           code_age_check = deistools::rec_age2day(
@@ -95,6 +97,12 @@ checkCie10 <- R6::R6Class(
           age_out = !((code_age_check > days_age_lower) & (code_age_check < days_age_upper)), #Boolean result from days check
           sex_out = (sex_limited != !!private$sex), #Boolean result check sex limited.
           SMD_in = !is.na(SMD_description) & (!!private$sex) == 2 & ((!!private$code_age) == 1 & dplyr::between(!!private$age, 11, 49)))
+
+      self$cats <- list(
+          "sex" = c(1,2),
+          "age" = c(1:120),
+          "code_age" = c(1:5),
+          "code_cie10" = deistools::cie10_cats)
 
       self$help_methods()
 
@@ -316,12 +324,6 @@ Local   | Code 0 | Code 1 | Code 2 | Code 3 | Code 4 | Code 5 |  %  |
 
   },
 
-cats = list(
-    "sex" = c(1,2),
-    "age" = c(1:120),
-    "code_age" = c(1:5),
-    "code_cie10" = deistools::cie10_cats),
-
 
 class = list("sex" = is.integer,
               "age" = is.integer,
@@ -351,8 +353,7 @@ report_completeness = function(){
 ),
 
 
-
-  private = list(
+private = list(
     #vars list
     id = NULL,
     age = NULL,
