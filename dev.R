@@ -507,7 +507,19 @@ checkR6_instance <- checkCie10$new(deistools::test_df,
                                    edad, unieda, codmuer, sexo, ocloc, id)
 
 
+con <- pgr::PgCon$new("mdb1252")
 
-checkR6_instance$report_completeness()
+db <- con$import("SELECT \"ACTA\", \"EDAD\", \"UNIEDA\",
+\"CODMUER\", \"SEXO\", \"OCLOC\"
+              FROM vitales_er.\"DefMayor0116\"")
 
+con$disconnect()
+
+checkR6_instance$report_useless()
+
+
+checkR6_er <- checkCie10$new(db, EDAD, UNIEDA,
+                             CODMUER, SEXO, OCLOC, ACTA)
+
+checkR6_er$list_useless()
 

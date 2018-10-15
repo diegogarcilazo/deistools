@@ -16,7 +16,7 @@ completeness_tbl <- function(name, var, cats){
     Unknown = n - (Correct + NAs),
     NAs,
     pct_correct = round(Correct * 100 /
-                          (Correct + Unknown + NAs),1)
+                          (Correct + Unknown + NAs),2)
   )
 }
 

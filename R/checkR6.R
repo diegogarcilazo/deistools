@@ -39,6 +39,7 @@ rows = {dim(private$tbls)[1]}
 ------------------------------------------------------------------
 list methods:
 
+  list_useless(). List certificates with useless code.
   list_problems(). To list certificates problems.
   list_enos(). Check for Notifiable infectous diseases.
   list_unknown(). Check for unknown categories.
@@ -84,13 +85,15 @@ checkCie10 <- R6::R6Class(
         "sex" = deparse(substitute(sex)),
         "age" = deparse(substitute(age)),
         "code_age" = deparse(substitute(code_age)),
-        "code_cie10" = deparse(substitute(code_cie10)))
+        "code_cie10" = deparse(substitute(code_cie10)),
+        "code_ocloc" = deparse(substitute(code_ocloc)))
 
       self$cats <- list(
         "sex" = c(1,2),
         "age" = c(1:120),
         "code_age" = c(1:5),
-        "code_cie10" = deistools::cie10_cats)
+        "code_cie10" = deistools::cie10_cats,
+        "code_ocloc" = c(1:4,9))
 
       private$db <- db
       private$id <- dplyr::quos(...)
@@ -160,6 +163,18 @@ checkCie10 <- R6::R6Class(
 
     },
 
+    list_useless = function() {
+
+      result <- private$tbls %>%
+        dplyr::filter(useless %in% 1:5) %>%
+        dplyr::select(!!!private$id, !!private$age, !!private$code_age,
+                      !!private$code_cie10, entity,!!private$sex,
+                      useless)
+      return(result)
+
+    },
+
+
     list_enos = function() {
       result <- private$tbls %>%
         dplyr::transmute(
@@ -215,7 +230,7 @@ checkCie10 <- R6::R6Class(
       ggplot2::geom_col(fill = "firebrick") +
       ggplot2::geom_text(ggplot2::aes(
         label = glue::glue("{scales::percent(prop, 1)}\n({n})")),
-                size = 3, nudge_y = .03) +
+                size = 3, nudge_y = .06) +
       ggplot2::theme_classic() +
       ggplot2::scale_y_continuous(labels = scales::percent, limits = c(0,1)) +
       ggplot2::theme(axis.title = ggplot2::element_blank(),
@@ -338,7 +353,8 @@ Local   | Code 0 | Code 1 | Code 2 | Code 3 | Code 4 | Code 5 |  %  |
 class = list("sex" = is.integer,
               "age" = is.integer,
               "code_age" = is.integer,
-              "code_cie10" = is.character),
+              "code_cie10" = is.character,
+              "code_ocloc" = is.integer),
 
 
 report_completeness = function(){
@@ -368,7 +384,8 @@ private = list(
         dplyr::select(!!private$sex,
                       !!private$age,
                       !!private$code_age,
-                      !!private$code_cie10)}
+                      !!private$code_cie10,
+                      !!private$code_ocloc)}
 
 )
 )
