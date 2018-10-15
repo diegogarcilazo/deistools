@@ -74,8 +74,24 @@ Help methods
 checkCie10 <- R6::R6Class(
   "checkCie10",
   public = list(
+
+    names = NULL,
     cats = NULL,
+
     initialize = function(db, age, code_age, code_cie10, sex, code_ocloc, ...) {
+
+      self$names <- list(
+        "sex" = deparse(substitute(sex)),
+        "age" = deparse(substitute(age)),
+        "code_age" = deparse(substitute(code_age)),
+        "code_cie10" = deparse(substitute(code_cie10)))
+
+      self$cats <- list(
+        "sex" = c(1,2),
+        "age" = c(1:120),
+        "code_age" = c(1:5),
+        "code_cie10" = deistools::cie10_cats)
+
       private$db <- db
       private$id <- dplyr::quos(...)
       private$age <- dplyr::enquo(age)
@@ -97,12 +113,6 @@ checkCie10 <- R6::R6Class(
           age_out = !((code_age_check > days_age_lower) & (code_age_check < days_age_upper)), #Boolean result from days check
           sex_out = (sex_limited != !!private$sex), #Boolean result check sex limited.
           SMD_in = !is.na(SMD_description) & (!!private$sex) == 2 & ((!!private$code_age) == 1 & dplyr::between(!!private$age, 11, 49)))
-
-      self$cats <- list(
-          "sex" = c(1,2),
-          "age" = c(1:120),
-          "code_age" = c(1:5),
-          "code_cie10" = deistools::cie10_cats)
 
       self$help_methods()
 
@@ -331,22 +341,9 @@ class = list("sex" = is.integer,
               "code_cie10" = is.character),
 
 
-names = list(
-  "sex" = deparse(substitute(private$sex)),
-  "age" = deparse(substitute(private$age)),
-  "code_age" = deparse(substitute(private$code_age)),
-  "code_cie10" = deparse(substitute(private$code_cie10))),
-
-
-vars = function() {private$tbls %>%
-    dplyr::select(!!private$sex,
-         !!private$age,
-         !!private$code_age,
-         !!private$code_cie10)},
-
 report_completeness = function(){
   purrr::pmap_df(
-    list(self$names, self$vars(), self$cats()),
+    list(self$names, private$vars(), self$cats),
     deistools::completeness_tbl)
 }
 
@@ -365,5 +362,13 @@ private = list(
     by = NULL,
     db_name = NULL,
     db = NULL,
-    tbls = NULL)
+    tbls = NULL,
+    vars = function() {
+      private$tbls %>%
+        dplyr::select(!!private$sex,
+                      !!private$age,
+                      !!private$code_age,
+                      !!private$code_cie10)}
+
+)
 )

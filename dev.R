@@ -506,9 +506,8 @@ library(deistools)
 checkR6_instance <- checkCie10$new(deistools::test_df,
                                    edad, unieda, codmuer, sexo, ocloc, id)
 
-checkR6_instance$create_cats()
 
 
-
+checkR6_instance$report_completeness()
 
 
