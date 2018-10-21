@@ -8,14 +8,15 @@ devtools::document()
 
 devtools::install_github('diegogarcilazo/deistools')
 
-devtools::use_package("dplyr")
-devtools::use_package("R6")
-devtools::use_package("glue")
-devtools::use_package("crayon")
-devtools::use_package("stringr")
-devtools::use_package("forcats")
-devtools::use_package("magrittr")
-devtools::use_package("tibble")
+usethis::use_package("dplyr")
+usethis::use_package("R6")
+usethis::use_package("glue")
+usethis::use_package("crayon")
+usethis::use_package("stringr")
+usethis::use_package("forcats")
+usethis::use_package("magrittr")
+usethis::use_package("tibble")
+usethis::use_package("rlang")
 
 devtools::use_test("testing")
 devtools::use_testthat()
@@ -502,15 +503,21 @@ test_df <- deistools::test_df %>% mutate(ocloc = rep(c(1,2,3,4,9),200))
 
 
 library(deistools)
+library(tidyverse)
 
 checkR6_instance <- checkCie10$new(deistools::test_df,
-                                   edad, unieda, codmuer, sexo, ocloc, id)
+            edad, unieda, codmuer, sexo, ocloc, id)
 
+
+checkR6_instance$report_completeness()
+
+
+checkR6_instance$plot_useless()
 
 con <- pgr::PgCon$new("mdb1252")
 
-db <- con$import("SELECT \"ACTA\", \"EDAD\", \"UNIEDA\",
-\"CODMUER\", \"SEXO\", \"OCLOC\"
+db <- con$import("SELECT \"ANO\",\"ACTA\", \"EDAD\", \"UNIEDA\",
+\"CODMUER\", \"SEXO\", \"OCLOC\", \"DEPRE\"
               FROM vitales_er.\"DefMayor0116\"")
 
 con$disconnect()
@@ -518,8 +525,7 @@ con$disconnect()
 checkR6_instance$report_useless()
 
 
-checkR6_er <- checkCie10$new(db, EDAD, UNIEDA,
+checkR6_er <- checkCie10$new(db %>% filter(ANO==2016, DEPRE == 84), EDAD, UNIEDA,
                              CODMUER, SEXO, OCLOC, ACTA)
 
-checkR6_er$list_useless()
-
+checkR6_er$report_useless()
