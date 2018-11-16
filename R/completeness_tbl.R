@@ -20,3 +20,4 @@ completeness_tbl <- function(name, var, cats){
   )
 }
 
+

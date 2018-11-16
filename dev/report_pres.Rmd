@@ -1,0 +1,27 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r setup, echo=FALSE}
+require(tidyverse)
+require(deistools)
+con <- pgr::PgCon$new("mdb1252")
+
+df <- con$import("mortalidad.i01_v24")
+
+check <- checkCie10$new(df, edad, uniedad, codmuer, sexo, ocloc, provres, ano)
+```
+
+
+#Primer reporte
+
+```{r}
+
+check$report_useless()
+
+```
+

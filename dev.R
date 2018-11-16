@@ -512,7 +512,7 @@ checkR6_instance <- checkCie10$new(deistools::test_df,
 checkR6_instance$report_completeness()
 
 
-checkR6_instance$plot_useless()
+checkR6_instance$report_useless()
 
 con <- pgr::PgCon$new("mdb1252")
 
@@ -525,7 +525,14 @@ con$disconnect()
 checkR6_instance$report_useless()
 
 
-checkR6_er <- checkCie10$new(db %>% filter(ANO==2016, DEPRE == 84), EDAD, UNIEDA,
+checkR6_er <- checkCie10$new(db %>% filter(ANO==2016), EDAD, UNIEDA,
                              CODMUER, SEXO, OCLOC, ACTA)
 
-checkR6_er$report_useless()
+
+
+checkR6_er$list_all() %>%
+  filter(SEXO == 2 & (UNIEDA == 1 & dplyr::between(EDAD, 11, 49))) %>%
+  count(SMD = SMD_in)
+
+
+

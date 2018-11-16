@@ -7,20 +7,12 @@ checkCie10 <- R6::R6Class(
 
     initialize = function(db, age, code_age, code_cie10, sex, code_ocloc, ...) {
 
-
       private$names <- list(
         sex = deparse(substitute(sex)),
         age = deparse(substitute(age)),
         code_age = deparse(substitute(code_age)),
         code_cie10 = deparse(substitute(code_cie10)),
         code_ocloc = deparse(substitute(code_ocloc)))
-
-      self$cats <- list(
-        "sex" = c(1,2),
-        "age" = c(1:120),
-        "code_age" = c(1:5),
-        "code_cie10" = deistools::cie10_cats,
-        "code_ocloc" = c(1:4,9))
 
       private$db <- db
       private$id <- dplyr::quos(...)
@@ -223,7 +215,13 @@ Report Notifiable Infectous Diseases: [n, %]
         dplyr::count(ocloc = !!private$code_ocloc, useless) %>%
         tidyr::spread(useless, n, fill = 0) %>%
         dplyr::mutate(prop = round(rowSums(.[,3:7]) * 100 /rowSums(.[,2:7]), 1)) %>%
-        glue::glue_data(tbls_formats$report_4)
+        glue::glue_data(tbls_formats$report_4),
+
+      report_5 = private$tbls %>%
+        dplyr::count(sex = !!private$sex, useless) %>%
+        tidyr::spread(useless, n, fill = 0) %>%
+        dplyr::mutate(prop = round(rowSums(.[,3:7]) * 100 /rowSums(.[,2:7]), 1)) %>%
+        glue::glue_data(tbls_formats$report_5)
     )
 
     glue::glue(explain$report_useless, .envir = report_data)
@@ -238,6 +236,14 @@ class = list("sex" = is.integer,
 
 
 report_completeness = function(){
+
+  self$cats <- list(
+    "sex" = c(1,2),
+    "age" = c(1:120),
+    "code_age" = c(1:5),
+    "code_cie10" = deistools::cie10_cats,
+    "code_ocloc" = c(1:4,9))
+
   purrr::pmap_df(
     list(private$names, private$vars(), self$cats),
     deistools::completeness_tbl)

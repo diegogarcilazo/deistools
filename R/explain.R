@@ -95,6 +95,13 @@ explain <- list(
       ------------------------------------------------------------------
   {glue::glue_collapse(report_3, sep = '\n  ')}
 
+
+    4. Sex Distribution:
+
+      Sex | Code 0 | Code 1 | Code 2 | Code 3 | Code 4 | Code 5 |  %  |
+      ------------------------------------------------------------------
+  {glue::glue_collapse(report_5, sep = '\n  ')}
+
   "
 )
 
@@ -129,7 +136,18 @@ report_4 = "
 {format(`3`, width = 9)}\\
 {format(`4`, width = 9)}\\
 {format(`5`, width = 9)}\\
+{format(prop, width = 9)}",
+
+report_5 = "
+{format(sex, width = 5)}:\\
+{format(`0`, width = 9)}\\
+{format(`1`, width = 9)}\\
+{format(`2`, width = 9)}\\
+{format(`3`, width = 9)}\\
+{format(`4`, width = 9)}\\
+{format(`5`, width = 9)}\\
 {format(prop, width = 9)}"
+
 )
 
 
