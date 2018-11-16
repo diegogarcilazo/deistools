@@ -535,4 +535,10 @@ checkR6_er$list_all() %>%
   count(SMD = SMD_in)
 
 
-
+deistools::lkup_def_deis$JURI %>%
+  mutate(
+    DESCRIPCION = factor(DESCRIPCION),
+    DESCRIPCION = fct_expand(DESCRIPCION, "CACA")
+  ) %>%
+  complete(DESCRIPCION) %>%
+  count(DESCRIPCION) %>% print(n = 100)

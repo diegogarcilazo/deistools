@@ -13,6 +13,11 @@ con <- pgr::PgCon$new("mdb1252")
 
 df <- con$import("mortalidad.i01_v24")
 
+df_m <- df %>% 
+  mutate(provres = myutilities::zerofill(provres, 2))
+
+provincias <- df_m %>% filter(provres <= 94) %>% pull(provres) %>% unique
+
 check <- checkCie10$new(df, edad, uniedad, codmuer, sexo, ocloc, provres, ano)
 ```
 
@@ -20,8 +25,17 @@ check <- checkCie10$new(df, edad, uniedad, codmuer, sexo, ocloc, provres, ano)
 #Primer reporte
 
 ```{r}
+report <- map(2001:2016, 
+    ~ checkCie10$new(df_m %>% filter(ano == .x), edad, uniedad, codmuer, sexo, ocloc, provres, ano)$report_useless()) %>% set_names(2001:2016)
 
-check$report_useless()
+report_2016 <- map(provincias, 
+    ~ checkCie10$new(df_m %>% filter(ano == 2016, provres == .x), edad, uniedad, codmuer, sexo, ocloc, provres, ano)$report_useless()) %>% set_names(provincias)
+
+report_2011 <- map(provincias, 
+    ~ checkCie10$new(df_m %>% filter(ano == 2011, provres == .x), edad, uniedad, codmuer, sexo, ocloc, provres, ano)$report_useless()) %>% set_names(provincias)
+
+report_2006 <- map(provincias, 
+    ~ checkCie10$new(df_m %>% filter(ano == 2006, provres == .x), edad, uniedad, codmuer, sexo, ocloc, provres, ano)$report_useless()) %>% set_names(provincias)
 
 ```
 

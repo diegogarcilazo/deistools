@@ -38,6 +38,8 @@ checkCie10 <- R6::R6Class(
 
       self$help_methods()
 
+      return(self)
+
       },
 
     help_useless = function(){
@@ -189,11 +191,17 @@ Report Notifiable Infectous Diseases: [n, %]
     report_data <- list(
 
       report_1 = private$tbls %>%
+        dplyr::mutate(
+          useless = factor(useless, levels = 0:5)) %>%
+        tidyr::complete(useless) %>%
         dplyr::count(useless = dplyr::if_else(useless == 0, 'No','Sí')) %>%
         glue::glue_data(tbls_formats$report_1),
 
       report_2 = private$tbls %>%
         dplyr::filter(useless > 0) %>%
+        dplyr::mutate(
+          useless = factor(useless, levels = 0:5)) %>%
+        tidyr::complete(useless) %>%
         dplyr::count(useless) %>%
         dplyr::mutate(prop = n / sum(n)) %>%
         glue::glue_data(tbls_formats$report_2),
@@ -201,24 +209,29 @@ Report Notifiable Infectous Diseases: [n, %]
       report_3 = private$tbls %>%
         dplyr::count(age = deistools::age_factor(code_age_check),
               #useless = dplyr::if_else(useless == 0, "No","Sí"),
-              useless,
+              useless = factor(useless, levels = 0:5),
               age = dplyr::case_when(
                 stringr::str_detect(age, "M1|M2") ~ "Neo",
                 age == "M3" ~ "PosNeo",
                 (age >= "01" & age <= "04") ~ "01 - 04",
                 T ~ as.character(age)),
               age = forcats::fct_relevel(age, "Neo", "PosNeo")) %>%
+        tidyr::complete(useless) %>%
         tidyr::spread(useless, n, fill = 0) %>%
         glue::glue_data(tbls_formats$report_3),
 
       report_4 = private$tbls %>%
-        dplyr::count(ocloc = !!private$code_ocloc, useless) %>%
+        dplyr::count(ocloc = !!private$code_ocloc,
+                     useless = factor(useless, levels = 0:5)) %>%
+        tidyr::complete(useless) %>%
         tidyr::spread(useless, n, fill = 0) %>%
         dplyr::mutate(prop = round(rowSums(.[,3:7]) * 100 /rowSums(.[,2:7]), 1)) %>%
         glue::glue_data(tbls_formats$report_4),
 
       report_5 = private$tbls %>%
-        dplyr::count(sex = !!private$sex, useless) %>%
+        dplyr::count(sex = !!private$sex,
+                     useless = factor(useless, levels = 0:5)) %>%
+        tidyr::complete(useless) %>%
         tidyr::spread(useless, n, fill = 0) %>%
         dplyr::mutate(prop = round(rowSums(.[,3:7]) * 100 /rowSums(.[,2:7]), 1)) %>%
         glue::glue_data(tbls_formats$report_5)
