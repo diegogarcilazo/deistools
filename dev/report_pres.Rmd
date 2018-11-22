@@ -37,5 +37,9 @@ report_2011 <- map(provincias,
 report_2006 <- map(provincias, 
     ~ checkCie10$new(df_m %>% filter(ano == 2006, provres == .x), edad, uniedad, codmuer, sexo, ocloc, provres, ano)$report_useless()) %>% set_names(provincias)
 
+
+saveRDS(list(poraño = report, xprov_2016 = report_2016, xprov_2011 = report_2011,
+             xprov_2006 = report_2006), "reportes.rds")
+
 ```
 

@@ -191,18 +191,15 @@ Report Notifiable Infectous Diseases: [n, %]
     report_data <- list(
 
       report_1 = private$tbls %>%
-        dplyr::mutate(
-          useless = factor(useless, levels = 0:5)) %>%
-        tidyr::complete(useless) %>%
         dplyr::count(useless = dplyr::if_else(useless == 0, 'No','Sí')) %>%
         glue::glue_data(tbls_formats$report_1),
 
       report_2 = private$tbls %>%
         dplyr::filter(useless > 0) %>%
         dplyr::mutate(
-          useless = factor(useless, levels = 0:5)) %>%
-        tidyr::complete(useless) %>%
+          useless = factor(useless, levels = 1:5)) %>%
         dplyr::count(useless) %>%
+        tidyr::complete(useless, fill = list(n = 0)) %>%
         dplyr::mutate(prop = n / sum(n)) %>%
         glue::glue_data(tbls_formats$report_2),
 
@@ -216,7 +213,7 @@ Report Notifiable Infectous Diseases: [n, %]
                 (age >= "01" & age <= "04") ~ "01 - 04",
                 T ~ as.character(age)),
               age = forcats::fct_relevel(age, "Neo", "PosNeo")) %>%
-        tidyr::complete(useless) %>%
+        tidyr::complete(useless, age) %>%
         tidyr::spread(useless, n, fill = 0) %>%
         glue::glue_data(tbls_formats$report_3),
 

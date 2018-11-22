@@ -1,23 +1,82 @@
 ---
 title: "deistools"
 output: github_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, comment = "")
 ```
 
-#deistools
-deistools es un paquete que simplifica la realización de tareas habituales de las áreas de bioestadística.
+## Visión General
 
-Instalación:
+***deistools*** es un paquete que simplifica la realización de tareas habituales de las áreas de bioestadística.
+
+## Instalación
+
 ```{r, eval=FALSE}
 install.packages(c('devtools','tidyverse','readxl','stringr'))
 devtools::install_github('diegogarcilazo/deistools')
 ```
 
-###Funciones de Chequeo
-El paquete deistools tiene incorporadas funciones para validar la información de las bases de mortalidad generadas por la DEIS. El primer grupo de validaciones son aquellas utilizadas para el control y reparación de la información.
+## Funciones de Chequeo
+
+El paquete deistools tiene incorporadas funciones para validar la información de las bases de mortalidad generadas por la DEIS. 
+
+El chequeo requiere información individual de las variables edad, codigo de edad, codigo de muerte (CIE10) y sexo. Estas variables son contrastadas con la información suministrada por la PAHO.
+
+\* Fuente de información: Se utilizó la información de las tablas sugeridas por http://www.paho.org/hq/index.php?option=com_docman&task=doc_download&gid=23700&Itemid=270&lang=en
+
+
+## Chequeo de Códigos Poco Útiles
+
+### Crear instancia
+
+La `checkCie10$new(args)` crea el objeto de clase checkCie10 que nos permitirá utilizar los métodos de chequeo. La creación del objeto requiere de la indicación de variables obligatorias (edad, unidad de la edad, código de muerte, local de ocurrencia y sexo) y variables que consideremos importantes para la identificación de los registros.
+
+```{r}
+library(deistools)
+
+chequeo <- checkCie10$new(deistools::test_df, edad, unieda, codmuer, sexo, ocloc, id)
+
+```
+
+## Métodos de Códigos poco útiles.
+
+**report_useless()**: Crea un reporte con 4 tablas que nos permiten evaluar el peso y la distribución de los códigos poco útiles.
+
+
+```{r}
+chequeo$report_useless()
+```
+
+**list_useless**: Genera listas con los registros de códigos poco útiles.
+
+```{r}
+chequeo$list_useless()
+```
+
+
+## Métodos de Códigos de Enfermedades de Notificación Obligatoria (ENOs).
+
+**report_enos()**: Crea un reporte que nos permiten evaluar la distribución de los códigos correspondientes en a Enfermedades de Notificación Obligatoria (ENOs).
+
+```{r}
+chequeo$report_enos()
+```
+
+**list_enos**: Lista los certificados con códigos de enfermedades de notificación obligatoria.
+
+
+```{r}
+chequeo$list_enos()
+```
+
+
+## Métodos para generar listas.
+
+### Métodos para generar listas de errores y warnings.
 
 Las validaciones utilizadas se las divide en 6 indicadores:
 
@@ -34,77 +93,21 @@ Errores (errors) \*:
 - **SMD:** sospecha de muerte materna.
 
 
-\* Fuente de información: Se utilizó la tablas sugeridas por http://www.paho.org/hq/index.php?option=com_docman&task=doc_download&gid=23700&Itemid=270&lang=en
-
-##Crear instancia
-
-La `checkCie10$new(args)` crea el objeto de clase checkCie10 que nos permitirá utilizar los métodos de chequeo. Se debe iniciar con los datos de edad, unidad de la edad, código de muerte, sexo y las variables que consideremos de identificación de los registros.
-
-```{r}
-suppressMessages(library(tidyverse))
-library(deistools)
-
-chequeo <- checkCie10$new(deistools::test_df, edad, unieda, codmuer, sexo, id)
-
-```
-
-
-## Métodos para generar listas.
-
 **list_problems**: Lista los certificados con problemas (errores y/o warnings)
 
-
 ```{r}
-
 chequeo$list_problems()
- 
 ```
 
-**list_enos**: Lista los certificados con códigos de enfermedades de notificación obligatoria.
-
-
-```{r}
-
-chequeo$list_enos()
- 
-```
 
 **list_unknown**: Lista los certificados con problemas (errores y/o warnings)
 
-
 ```{r}
-
 chequeo$list_unknown()
- 
 ```
 
 **list_all**: Lista todos los certificados.
 
-
 ```{r}
-
 chequeo$list_all()
- 
 ```
-
-## Métodos para generar gráficos.
-
-**plot_missing**: crear un gráfico de raster rellenando con color aquellos registros con datos y dejando en blanco los NA.
-
-
-```{r}
-
-chequeo$plot_missing()
- 
-```
-
-**plot_useless**: crea un gráfico d barras con el porcentaje de códigos poco útiles por grupos de edad.
-
-
-```{r}
-
-chequeo$plot_useless()
- 
-```
-
-
