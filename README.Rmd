@@ -44,14 +44,14 @@ chequeo <- checkCie10$new(deistools::test_df, edad, unieda, codmuer, sexo, ocloc
 
 ## Métodos de Códigos poco útiles.
 
-**report_useless()**: Crea un reporte con 4 tablas que nos permiten evaluar el peso y la distribución de los códigos poco útiles.
+**report_useless()**: Crea un reporte en la consola con 4 tablas que nos permiten evaluar el peso y la distribución de los códigos poco útiles.
 
 
 ```{r}
 chequeo$report_useless()
 ```
 
-**list_useless**: Genera listas con los registros de códigos poco útiles.
+**list_useless**: Genera listas (data.frame) con los registros de códigos poco útiles.
 
 ```{r}
 chequeo$list_useless()
@@ -66,15 +66,13 @@ chequeo$list_useless()
 chequeo$report_enos()
 ```
 
-**list_enos**: Lista los certificados con códigos de enfermedades de notificación obligatoria.
+**list_enos**: Lista (data.frame) los certificados con códigos de enfermedades de notificación obligatoria.
 
 
 ```{r}
 chequeo$list_enos()
 ```
 
-
-## Métodos para generar listas.
 
 ### Métodos para generar listas de errores y warnings.
 
@@ -99,12 +97,22 @@ Errores (errors) \*:
 chequeo$list_problems()
 ```
 
+### Chequeo de faltantes y desconocidos
+
+**report_completeness**: Lista los certificados con problemas (errores y/o warnings)
+
+```{r}
+chequeo$report_completeness()
+```
 
 **list_unknown**: Lista los certificados con problemas (errores y/o warnings)
 
 ```{r}
 chequeo$list_unknown()
 ```
+
+
+### Listar todo.
 
 **list_all**: Lista todos los certificados.
 
