@@ -3,7 +3,7 @@
 #' @return factor.
 
 
-birth_weight <- function(gestweeks){
+gestational_age <- function(gestweeks){
   stopifnot(is.integer(gestweeks))
 
   if(any(gestweeks < 20)) {
