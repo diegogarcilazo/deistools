@@ -77,7 +77,7 @@ chequeo <- checkCie10$new(deistools::test_df, edad, unieda, codmuer, sexo, ocloc
 Métodos de Códigos poco útiles.
 -------------------------------
 
-**report\_useless()**: Crea un reporte con 4 tablas que nos permiten evaluar el peso y la distribución de los códigos poco útiles.
+**report\_useless()**: Crea un reporte en la consola con 4 tablas que nos permiten evaluar el peso y la distribución de los códigos poco útiles.
 
 ``` r
 chequeo$report_useless()
@@ -94,12 +94,11 @@ chequeo$report_useless()
 
       1. Code Distribution:
 
-      code 0:   1  0.3%
       code 1:  16  4.3%
-      code 2: 220 59.5%
+      code 2: 220 59.6%
       code 3:  33  8.9%
       code 4:  37 10.0%
-      code 5:  63 17.0%
+      code 5:  63 17.1%
 
 
      2. Place of Occurrence:
@@ -149,7 +148,7 @@ chequeo$report_useless()
         3:        1        0        0        0        0        0      0.0
         9:        2        0        0        0        0        0      0.0
 
-**list\_useless**: Genera listas con los registros de códigos poco útiles.
+**list\_useless**: Genera listas (data.frame) con los registros de códigos poco útiles.
 
 ``` r
 chequeo$list_useless()
@@ -190,7 +189,7 @@ chequeo$report_enos()
     6: Meningitis Bacteriana Sin Especificar Agente [1, 1.6%]
     7: Tuberculosis [1, 1.6%]
 
-**list\_enos**: Lista los certificados con códigos de enfermedades de notificación obligatoria.
+**list\_enos**: Lista (data.frame) los certificados con códigos de enfermedades de notificación obligatoria.
 
 ``` r
 chequeo$list_enos()
@@ -210,9 +209,6 @@ chequeo$list_enos()
      9     6 J189    NEUMONIA, NO ESPECIFICADA         86      1     2 Neumon…
     10    14 J189    NEUMONIA, NO ESPECIFICADA         62      1     1 Neumon…
     # ... with 52 more rows
-
-Métodos para generar listas.
-----------------------------
 
 ### Métodos para generar listas de errores y warnings.
 
@@ -252,6 +248,23 @@ chequeo$list_problems()
     # ... with 370 more rows, and 3 more variables: no_cbd <dbl>,
     #   asterisco <dbl>, sex_out <dbl>
 
+### Chequeo de faltantes y desconocidos
+
+**report\_completeness**: Lista los certificados con problemas (errores y/o warnings)
+
+``` r
+chequeo$report_completeness()
+```
+
+    # A tibble: 5 x 5
+      Name    Correct Unknown   NAs pct_correct
+      <chr>     <int>   <int> <int>       <dbl>
+    1 sexo        997       3     0        99.7
+    2 edad        995       5     0        99.5
+    3 unieda      996       4     0        99.6
+    4 codmuer    1000       0     0       100  
+    5 ocloc      1000       0     0       100  
+
 **list\_unknown**: Lista los certificados con problemas (errores y/o warnings)
 
 ``` r
@@ -269,6 +282,8 @@ chequeo$list_unknown()
     6     6     0      9 I509        2
     7     6    22      1 I678        9
     8    18     0      9 C189        1
+
+### Listar todo.
 
 **list\_all**: Lista todos los certificados.
 

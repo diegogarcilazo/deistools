@@ -540,5 +540,33 @@ deistools::lkup_def_deis$JURI %>%
     DESCRIPCION = factor(DESCRIPCION),
     DESCRIPCION = fct_expand(DESCRIPCION, "CACA")
   ) %>%
-  complete(DESCRIPCION) %>%
-  count(DESCRIPCION) %>% print(n = 100)
+  count(DESCRIPCION) %>%
+  complete(DESCRIPCION, fill = list(n = 0)) %>%
+  print(n = 100)
+}
+
+
+rlang::list2()
+
+count_fct <- function(df, ..., wt = NULL){
+
+  vars <- rlang::dots_list(...)
+
+  wt <- rlang::enquo(wt)
+
+  df %>%
+    count(!!vars, wt = !!wt) %>%
+    complete(!!vars, fill = list(n = 0))
+
+}
+
+
+
+deistools::lkup_def_deis$JURI %>%
+  mutate(
+    SEXO = factor(rep(1:2, 12)),
+    DESCRIPCION = factor(DESCRIPCION),
+    DESCRIPCION = fct_expand(DESCRIPCION, "Que grande Papá", "Te amo Bebé")
+  ) %>% count_fct(list(DESCRIPCION, SEXO), wt = as.numeric(CODIGOS))
+
+

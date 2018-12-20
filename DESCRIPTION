@@ -1,7 +1,7 @@
 Package: deistools
 Type: Package
 Title: Tools for Biostatistic datasets developed by DEIS. 
-Version: 0.2.9002
+Version: 0.2.9003
 Author: Diego A. Garcilazo
 Maintainer: Diego A. Garcilazo <diego_garcilazo@yahoo.com.ar>
 Description: Implementations for ICD and management of Biostatistic datasets developed by the Direction of statistic and Health Information DEIS.
@@ -17,5 +17,5 @@ Imports:
     forcats,
     magrittr,
     tibble
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Suggests: testthat
