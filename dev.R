@@ -561,12 +561,13 @@ count_fct <- function(df, ..., wt = NULL){
 }
 
 
-
 deistools::lkup_def_deis$JURI %>%
   mutate(
     SEXO = factor(rep(1:2, 12)),
     DESCRIPCION = factor(DESCRIPCION),
     DESCRIPCION = fct_expand(DESCRIPCION, "Que grande Papá", "Te amo Bebé")
   ) %>% count_fct(list(DESCRIPCION, SEXO), wt = as.numeric(CODIGOS))
+
+
 
 
