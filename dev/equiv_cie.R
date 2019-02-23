@@ -2,7 +2,7 @@ library(tidyverse)
 
 tbl <- readxl::read_excel("/home/diego/Dropbox/Rprojects/db_def/datasets/equiv_cie.xlsx")
 
-I <- "^[A|B][0-9][0-9]|^[0][0-9][0-9]|^[1][0-3][0-9]|^R75|279[56]|7958"
+I <- "^[A|B][0-9][0-9]|^0[0-9][0-9]|^1[0-3][0-9]|^R75|^279[56]|^7958"
 II <- "^C[0-9][0-9]|^D[0-3][0-9]|^D4[0-8]|^1[4-9][0-9]|^2[0-3][0-9]|^273[13]|^2898"
 III <- "(?=^D[5-8][0-9]|^279|^28[0-9]|^273[02])(?!^2795|^2796|^2898)"
 IV <- "(?=^E[0-8][0-9]|^E90|^2[4-6][0-9]|^27[0-8]|^330[01])(?!^273[0-3]|^274)"
@@ -23,18 +23,25 @@ XX <- "^V[0-9][1-9]|^V[1-9][0-9]|^[W-X][0-9][0-9]|^Y[0-8][0-9]|^[89][0-9][0-9]"
 `090` <- "^V[0-9][1-9]|^V[1-9][0-9]|^8[0-3][0-9]|^84[0-8]"
 `055` <- "^I21|^410"
 `059` <- "^I6[0-9]|^43[0-4|6-8]"
-`006` <- "^B2[0-4]|79[56]"
+`006` <- "^B2[0-4]|^79[56]"
 `007` <- "^R75|^7958"
 `023` <- "^C50|^17[45]"
 `024` <- "^C53|^180"
 `028` <- "^C61|^185"
 `012` <- "^C18|^153"
+`002` <- "^A1[5-9]|^B90|^01[0-8]|^137"
+`004` <- "^A4[0-1]|^038"
+`018` <- "^C3[3-4]|^162"
+`062` <- "^J1[0-1]|^487"
+`063` <- "^J1[2-8]|^48[0-6]"
 
+chap <- c(I, II, III, IV, V, VI_VIII, IX, X, XI, XII, XIII, XIV, XV, XVI, XVII,
+          XVIII, XX, `064`, `090`, `055`, `059`, `006`, `007`, `023`, `024`,
+          `028`, `012`, `002`,`004`, `018`, `062`, `063`)
 
-chap <- c(I, II, III, IV, V, VI_VIII, IX, X, XI, XII, XIII, XIV, XV, XVI, XVII, XVIII, XX,
-          `064`, `090`, `055`, `059`, `006`, `007`, `023`, `024`, `028`, `012`)
-chap_abb <- c('I','II','III','IV','V','VI-VIII','IX','X','XI','XII','XIII','XIV','XV','XVI',
-              'XVII','XVIII','XX', '064', '090', '055', '059', '006', '007', '023', '024', '028', '012')
+chap_abb <- c('I','II','III','IV','V','VI-VIII','IX','X','XI','XII','XIII','XIV','XV',
+              'XVI', 'XVII','XVIII','XX', '064', '090', '055', '059', '006', '007',
+              '023', '024', '028', '012','002','004', '018', '062', '063')
 
 regex <- tibble(code_abb = chap_abb, code_regex = chap)
 
@@ -46,6 +53,8 @@ equiv_cie <- tbl %>%
          code_abb = coalesce(code_abb, code_num),
          code_des = str_trim(str_remove_all(`Grupos de causas`, "[0-9]"))) %>%
   left_join(regex) %>%
-  select(code_abb, code_des, detail_cie10 = `detallada CIE-10`, detail_cie09 = `detallada CIE-9`,  code_regex)
+  select(code_abb, code_des, detail_cie10 = `detallada CIE-10`,
+         detail_cie09 = `detallada CIE-9`,  code_regex)
 
 saveRDS(equiv_cie, "/home/diego/Dropbox/Rprojects/my_dev/biotools/data/equiv_cie.rds")
+

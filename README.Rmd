@@ -16,8 +16,8 @@ knitr::opts_chunk$set(echo = TRUE, comment = "")
 ## Instalación
 
 ```{r, eval=FALSE}
-install.packages(c('devtools','tidyverse','readxl','stringr'))
-devtools::install_github('diegogarcilazo/deistools')
+install.packages(c('devtools','tidyverse','readxl','stringr')) #Dependencias
+devtools::install_github('diegogarcilazo/deistools') #Instalar paquete de github
 ```
 
 ## Funciones de Chequeo
@@ -119,3 +119,21 @@ chequeo$list_unknown()
 ```{r}
 chequeo$list_all()
 ```
+
+
+### Transformar las variables edad y uniedad en Grupos de Edad.
+
+La función `age_codeage()` crea una variable de tipo `factor ordered` con los grupos de edad que utiliza la DEIS al incorporar la edad `age` y la unidad `code_age` (1 = Años, 2 = Meses, 3 = días, 4 = horas, 5 = minutos). Las dos variables ingresadas deben ser de tipo `numeric`.  
+
+```{r}
+library(tidyverse) #librería para análisis de datos
+
+test_df2 <- test_df %>% # data.frame
+  mutate(grupoEdad = age_codeage(edad, unieda)) # Agrega una nueva variable
+
+test_df2
+
+```
+
+
+
