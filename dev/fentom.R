@@ -1,5 +1,29 @@
-fentom <- function(sex, week)
+fentom <- function(sexo, semana, peso){
   case_when(
+    sexo == 1 & semana == 22 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 23 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 24 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 25 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 26 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 27 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 28 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 29 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 30 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 31 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 32 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 33 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 34 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 35 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 36 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 37 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 38 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 39 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 22 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 22 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 22 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 22 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 22 & (peso < 400) ~ "<P3",
+    sexo == 1 & semana == 22 & (peso < 400) ~ "<P3",
     sexo == 1 & semana == 22 & (peso < 400) ~ "<P3",
     sexo == 1 & semana == 22 & (peso >= 400 & peso <430) ~ "P3",
     sexo == 1 & semana == 23 & (peso >= 430 & peso <490) ~ "P3",
@@ -282,4 +306,42 @@ fentom <- function(sex, week)
     sexo == 2 & semana == 48 & (peso >= 6480 & peso <6710) ~ "P97",
     sexo == 2 & semana == 49 & (peso >= 6710) ~ ">P97",
     T ~ NA_character_
-  )
+  )}
+
+
+library(tidyverse)
+
+con <- pgr::PgCon$new("mdb1252")
+
+
+fentom <- read_csv2("/home/diego/Dropbox/Enrique_Jorge/FENTON.csv")
+
+nac <- read_csv2("/home/diego/Dropbox/Enrique_Jorge/NAC12.csv")
+
+
+fenton <- function(df, sexo, tiemgest, pesonac){
+
+  sexo <- deparse(substitute(sexo))
+  tiemgest <- deparse(substitute(tiemgest))
+  names <- c(sexo, tiemgest)
+  pesonac <- enquo(pesonac)
+
+  df %>%
+  left_join(fentom, setNames(c("SEXO", "TIEMGEST"), names)) %>%
+    mutate(
+      fentom = case_when(
+        !!pesonac < P3 ~ "<P3",
+        !!pesonac >= P3 & !!pesonac < P10 ~ "P3 - P10",
+        !!pesonac >= P10 & !!pesonac < P50 ~ "P10 - P50",
+        !!pesonac >= P50 & !!pesonac < P90 ~ "P50 - P90",
+        !!pesonac >= P90 & !!pesonac < P97 ~ "P90 - P97",
+        !!pesonac >= P97 ~ ">P97"
+      )) %>% select(-P3:-P97)
+}
+
+
+nac %>% fenton(SEXO, TIEMGEST, PESONAC)
+
+
+
+

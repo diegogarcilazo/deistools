@@ -135,5 +135,12 @@ test_df2
 
 ```
 
+### Función para clasificar por criterios de reducibilidad.
+
+La función `reductible()` tiene como primer argumento el data.frame con los datos de mortalidad. Como resultado crea tres variables key1, key2, key3 con los criterios de reducibilidad. Las variables requeridas son edad(numeric), uniedad(unidad de medida de la edad), codmuer(codigo de muerte de la CIE-10 con 4 dígitos) y year (año de fallecimiento). También realiza un reporte con el resumen.
+
+```{r}
+
+```
 
 

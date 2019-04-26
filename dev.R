@@ -2,6 +2,8 @@ library(pgr)
 library(tidyverse)
 library(deistools)
 
+usethis::use_data()
+
 devtools::test()
 devtools::check()
 devtools::document()
@@ -435,19 +437,6 @@ check(deistools::test_df, edad, unieda, codmuer, sexo, ocloc)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 unknown_cats_vec <- function(var, cats){
   vec <- setdiff(unique(var), cats)
   return(vec)
@@ -535,31 +524,6 @@ checkR6_er$list_all() %>%
   count(SMD = SMD_in)
 
 
-deistools::lkup_def_deis$JURI %>%
-  mutate(
-    DESCRIPCION = factor(DESCRIPCION),
-    DESCRIPCION = fct_expand(DESCRIPCION, "CACA")
-  ) %>%
-  count(DESCRIPCION) %>%
-  complete(DESCRIPCION, fill = list(n = 0)) %>%
-  print(n = 100)
-}
-
-
-rlang::list2()
-
-count_fct <- function(df, ..., wt = NULL){
-
-  vars <- rlang::dots_list(...)
-
-  wt <- rlang::enquo(wt)
-
-  df %>%
-    count(!!vars, wt = !!wt) %>%
-    complete(!!vars, fill = list(n = 0))
-
-}
-
 
 deistools::lkup_def_deis$JURI %>%
   mutate(
@@ -567,6 +531,11 @@ deistools::lkup_def_deis$JURI %>%
     DESCRIPCION = factor(DESCRIPCION),
     DESCRIPCION = fct_expand(DESCRIPCION, "Que grande Papá", "Te amo Bebé")
   ) %>% count_fct(list(DESCRIPCION, SEXO), wt = as.numeric(CODIGOS))
+
+
+
+
+library(tidyverse)
 
 
 

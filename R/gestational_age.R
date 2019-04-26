@@ -16,11 +16,11 @@ gestational_age <- function(gestweeks){
 
   return(
     cut(gestweeks, breaks = c(19,28,32,37,43,47),
-        labels = c('Prematuros Extremos (<28sem)',
-                   'Muy Prematuros (28sem a 31sem)',
-                   'Prematuros Moderados a Tardíos (32sem a 36sem)',
-                   'A Término (37sem a 42sem)',
-                   'Postérmino (>42sem)'),
+        labels = c('Extremely preterm (<28sem)',
+                   'Very preterm (28sem a 31sem)',
+                   'Moderate to late preterm (32sem a 36sem)',
+                   'Mature births (37sem a 42sem)',
+                   'Post mature births (>42sem)'),
         right = F)
   )
 }
